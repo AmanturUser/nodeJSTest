@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // MongoDB URI with login and password
-// const MONGO_URI = "mongodb://admin:admin@localhost:27017/myNewDatabase";
+// const MONGO_URI = "mongodb://admin:admin@localhost:27017/test";
 const MONGO_URI = "mongodb://localhost:27017/";
 // Connect to the database
 const connectDb = async () => {
