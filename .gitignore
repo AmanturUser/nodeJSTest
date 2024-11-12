@@ -4,3 +4,4 @@ replit.nix
 .upm
 .config
 .env
+config/push-notification-key.json
