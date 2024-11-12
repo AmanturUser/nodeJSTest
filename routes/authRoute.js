@@ -12,6 +12,8 @@ router.post('/register', authController.registerUser);
 
 router.post('/registerDetail', authMiddleware.auth, authController.registerDetail);
 
+router.post('/fcmTokenSet', authMiddleware.auth, authController.fcmTokenSet);
+
 //loginUser route
 router.post('/login', authController.loginUser);
 

@@ -75,6 +75,9 @@ app.use('/event', eventRoutes);
 const discussionRoutes = require('./routes/discussion.router.js');
 app.use('/discussion', discussionRoutes);
 
+const notificationRoutes = require('./routes/notification.js');
+app.use('/notification', notificationRoutes);
+
 const adminManageRoutes = require('./routes/admin.manage.router.js');
 app.use('/adminManage', adminManageRoutes);
 

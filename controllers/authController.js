@@ -55,9 +55,31 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+exports.fcmTokenSet = async (req, res) => {
+  const{ fcmToken } = req.body;
+  try {
+
+    if(!fcmToken){
+      return res.status(404).json({message: "Убедитесь что поля заполнены"});
+    }
+
+    
+    //new user object
+    const user = req.user;
+
+    user.fcmToken=fcmToken;
+
+    //save
+    await user.save();
+    res.status(201).json({message: "Успешно"});   
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: "Server Error"});
+  }
+};
 
 exports.registerDetail = async (req, res) => {
-  const{name, surname, classId, schoolId } = req.body;
+  const{name, surname, classId, schoolId, fcmToken } = req.body;
   try {
 
     if(!name || !surname || !classId){
@@ -96,6 +118,7 @@ exports.registerDetail = async (req, res) => {
     user.surname=surname;
     user.schoolId=mySchool._id;
     user.classId=classId;
+    user.fcmToken=fcmToken;
 
     //save
     await user.save();

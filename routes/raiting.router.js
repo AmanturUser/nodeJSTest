@@ -26,7 +26,7 @@ router.get('/all', authMiddleware.auth, async (req, res) => {
       { $unwind: '$classInfo' },
       {
         $match: {
-          _id: { $ne: req.user._id },
+          // _id: { $ne: req.user._id },
           role : 0,
           schoolId : req.user.schoolId
         }
@@ -136,11 +136,11 @@ router.get('/allSchool', authMiddleware.auth, async (req, res) => {
           totalRating: { $sum: "$rating" }
         }
       },
-      {
-        $match: {
-          _id: { $ne: userSchoolId }, // Исключаем школу пользователя
-        }
-      },
+      // {
+      //   $match: {
+      //     _id: { $ne: userSchoolId }, // Исключаем школу пользователя
+      //   }
+      // },
       {
         $lookup: {
           from: "schools",
@@ -191,6 +191,7 @@ router.get('/allSchool', authMiddleware.auth, async (req, res) => {
     const totalPages = Math.ceil((totalSchools[0]?.total || 0) / limit);
 
     return res.status(200).json({
+      _id : userSchoolId,
       userSchoolName : userSchoolRating[0].schoolName,
       userSchoolRating : userSchoolRating[0].rating,
       schools: otherSchoolsRatings,

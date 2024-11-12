@@ -36,7 +36,8 @@ const userSchema = new Schema({
   role : {
     type: Number,
     default: 0
-  }
+  },
+  fcmToken: String,
 });
 
 userSchema.pre('save', async function(next) {
