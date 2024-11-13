@@ -5,26 +5,20 @@ const notificationSchema = new mongoose.Schema({
     body: { type: String, required: true },
     type: { 
       type: String, 
-      enum: ['ALL', 'SCHOOL', 'CLASS', 'SPECIFIC_USERS'], 
+      enum: ['SCHOOL', 'CLASS', 'USER'], 
       required: true 
     },
-    recipients: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }],
     schoolId: { 
       type: mongoose.Schema.Types.ObjectId,
       ref: 'School' 
     },
-    classId: String,
-    readBy: [{
-      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      readAt: { type: Date, default: Date.now }
-    }],
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+    classId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Class'
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     },
     createdAt: { type: Date, default: Date.now }
   });

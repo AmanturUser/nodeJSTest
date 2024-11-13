@@ -129,13 +129,23 @@ router.get('/projects', async (req, res) => {
   }
 });
 
-router.delete('/deleteUser', authMiddleware.auth, async (req, res) => {
+router.get('/deleteUser', authMiddleware.auth, async (req, res) => {
   try {
 
     // Проверяем существование пользователя
 
     // Удаляем пользователя
-    await UserModel.findByIdAndDelete(req.user._id);
+
+    const user=req.user;
+
+    user.name='deleted_user';
+    user.surname='';
+    user.email='deleted_email';
+    user.photo=null;
+    user.rating=0;
+    user.fcmToken = null;
+
+    user.save();
 
     // Можно также удалить связанные данные
     // await Post.deleteMany({ userId });
