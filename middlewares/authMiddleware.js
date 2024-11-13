@@ -25,6 +25,29 @@ exports.auth = async (req, res, next) => {
   }
 };
 
+exports.authUserDelete = async (req, res, next) => {
+  const token = req.header('Authorization');
+ 
+  if (!token) {
+    return res.redirect('/admin/login');
+  }
+
+  try {
+    const decoded = jwt.verify(token, 'secret');
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    req.user = user; 
+    next();
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
 
 exports.isAdmin = async (req, res, next) => {
   const token = req.header('Authorization');

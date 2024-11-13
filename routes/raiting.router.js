@@ -178,11 +178,11 @@ router.get('/allSchool', authMiddleware.auth, async (req, res) => {
           _id: "$schoolId"
         }
       },
-      {
-        $match: {
-          _id: { $ne: userSchoolId }
-        }
-      },
+      
+     
+          
+
+
       {
         $count: "total"
       }
