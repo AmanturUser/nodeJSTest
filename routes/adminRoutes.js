@@ -9,6 +9,8 @@ const User = require('../models/user.model');
 
 router.get('/', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,adminController.getDashboard);
 
+router.get('/privacy-policy', adminAuth.getPrivacy);
+
 router.get('/login', adminAuth.getLoginPage);
 router.post('/login', adminAuth.postLogin);
 router.get('/logout', adminAuth.getLogout);

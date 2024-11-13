@@ -3,6 +3,17 @@ const User = require('../models/user.model');
 const { sendOTPByEmail } = require("../middlewares/emailOtpMiddleware");
 const otpGenerator  = require("../utils/otpGenerator");
 
+
+exports.getPrivacy = (req, res) => {
+    res.render('privacy-policy/privacy-policy', {
+        layout: path.join(__dirname, "../views/layouts/login"),
+        footer: true,
+      }
+    );
+    
+};
+
+
 exports.getLoginPage = (req, res) => {
     console.log('Rendering login page');
     res.render('auth/login', {
