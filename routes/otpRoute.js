@@ -52,7 +52,7 @@ router.post("/login", async (req, res) => {
       user.otp = null; // Set the OTP field to null after verification
       await user.save();
 
-      const token = jwt.sign({userId: user._id}, 'secret', {expiresIn: '1d'});
+      const token = jwt.sign({userId: user._id}, 'secret');
       let isRegister;
       if(user.name){
         isRegister=true;

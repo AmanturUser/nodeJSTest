@@ -2,7 +2,15 @@ const admin = require('firebase-admin');
 const serviceAccount = require('./config/push-notification-key.json');
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  messaging: {
+    apple: {
+      keyId: 'XT8L874G4Z',
+      teamId: '45L3TP96G4',
+      privateKey: '-----BEGIN PRIVATE KEY-----\nMIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg8iY3bWxQeE54/wr6\nlH3+VfpW0DozCUROg1JyzI85eQCgCgYIKoZIzj0DAQehRANCAAQVJePYl7PRR5Y0\nc7oBhnJ3hiRaRWSn0/Dm1vbDW2/Pi0fXyH9Od9hcE31ffAGOqgoDgvca8dpSMKpb\nGl4GOpOr\n-----END PRIVATE KEY-----',
+      sandbox: false
+    }
+  }
 });
 
 class FCMService {
@@ -17,10 +25,34 @@ class FCMService {
           ...data,
           click_action: 'FLUTTER_NOTIFICATION_CLICK', // Важно для Flutter
         },
-        token
+        token,
+        apns: {
+            payload: {
+              aps: {
+                sound: 'default',
+                badge: 1,
+                'content-available': 1
+              }
+            },
+            headers: {
+              'apns-priority': '10',
+              'apns-push-type': 'alert'
+            }
+          }
       };
 
-      const response = await admin.messaging().send(message);
+      console.log('Sending message:', {
+        token,
+        title,
+        body,
+        data
+      });
+      const response = await admin.messaging().send({...message,android: {
+        priority: "high"
+      },fcm_options: {
+        analytics_label: "notification_sent"
+      }});
+      
       console.log('Successfully sent message:', response);
       return { success: true, messageId: response };
     } catch (error) {
@@ -40,7 +72,20 @@ class FCMService {
           ...data,
           click_action: 'FLUTTER_NOTIFICATION_CLICK',
         },
-        tokens
+        tokens,
+        apns: {
+            payload: {
+              aps: {
+                sound: 'default',
+                badge: 1,
+                'content-available': 1
+              }
+            },
+            headers: {
+              'apns-priority': '10',
+              'apns-push-type': 'alert'
+            }
+          }
       };
 
       console.log(message);
@@ -69,7 +114,20 @@ class FCMService {
           ...data,
           click_action: 'FLUTTER_NOTIFICATION_CLICK',
         },
-        topic
+        topic,
+        apns: {
+            payload: {
+              aps: {
+                sound: 'default',
+                badge: 1,
+                'content-available': 1
+              }
+            },
+            headers: {
+              'apns-priority': '10',
+              'apns-push-type': 'alert'
+            }
+          }
       };
 
       const response = await admin.messaging().send(message);
