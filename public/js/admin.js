@@ -287,3 +287,161 @@ document.addEventListener('DOMContentLoaded', function() {
     // Дополнительные функции админ-панели могут быть добавлены здесь
     
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('type');
+    const schoolSelect = document.querySelector('.school-select');
+    const classSelect = document.querySelector('.class-select');
+    const userSelect = document.querySelector('.user-select');
+    const schoolForClassSelect = document.getElementById('schoolForClass');
+
+    typeSelect.addEventListener('change', function() {
+        // Скрываем все селекты
+        schoolSelect.style.display = 'none';
+        classSelect.style.display = 'none';
+        userSelect.style.display = 'none';
+
+        // Сбрасываем required атрибуты
+        schoolSelect.querySelector('select').required = false;
+        classSelect.querySelector('select').required = false;
+        userSelect.querySelector('select').required = false;
+
+        // Показываем нужный селект
+        switch(this.value) {
+            case 'SCHOOL':
+                schoolSelect.style.display = 'block';
+                schoolSelect.querySelector('select').required = true;
+                break;
+            case 'CLASS':
+                classSelect.style.display = 'block';
+                document.getElementById('schoolForClass').required = true;
+                document.getElementById('class').required = true;
+                break;
+            case 'USER':
+                userSelect.style.display = 'block';
+                userSelect.querySelector('select').required = true;
+                break;
+        }
+    });
+
+    schoolForClassSelect.addEventListener('change', function() {
+        const schoolId = this.value;
+        const classSelect = document.getElementById('class');
+        const classOptions = classSelect.querySelectorAll('option[data-school-id]');
+        
+        // Сначала показываем все опции
+        classOptions.forEach(option => {
+            if (!schoolId) {
+                // Если выбраны все школы - показываем название школы
+                const schoolName = option.getAttribute('data-school-name');
+                option.textContent = `${option.getAttribute('data-class-name')} (${schoolName})`;
+                option.style.display = '';
+            } else {
+                // Если выбрана конкретная школа
+                if (option.getAttribute('data-school-id') === schoolId) {
+                    option.textContent = option.getAttribute('data-class-name');
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+        });
+    });
+
+    // Инициализация при загрузке страницы
+    if (typeSelect.value) {
+        typeSelect.dispatchEvent(new Event('change'));
+    }
+    
+    if (schoolForClassSelect.value) {
+        schoolForClassSelect.dispatchEvent(new Event('change'));
+    }
+});
+
+
+// public/js/notifications.js
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('type');
+    const schoolForUserSelect = document.getElementById('schoolForUser');
+    const classForUserSelect = document.getElementById('classForUser');
+    const userSelect = document.getElementById('userId');
+    
+    // Функция обновления списка классов
+    function updateClassList(schoolId) {
+        const classOptions = classForUserSelect.querySelectorAll('option[data-school-id]');
+        
+        // Сброс значения и показ первой опции
+        classForUserSelect.value = '';
+        classForUserSelect.querySelector('option:first-child').style.display = '';
+        
+        // Обновляем отображение опций классов
+        classOptions.forEach(option => {
+            if(schoolId==''){
+                option.style.display = 'none';
+            } else if (schoolId=='all') {
+                // Если школа не выбрана - показываем все классы с названиями школ
+                option.style.display = '';
+            } else {
+                // Показываем только классы выбранной школы
+                option.style.display = option.getAttribute('data-school-id') === schoolId ? '' : 'none';
+            }
+        });
+
+        // Вызываем обновление списка пользователей после обновления классов
+        updateUserList(schoolId, '');
+    }
+
+    // Функция обновления списка пользователей
+    function updateUserList(schoolId, classId) {
+        const userOptions = userSelect.querySelectorAll('option[data-school-id]');
+        
+        // Сброс значения и показ первой опции
+        userSelect.value = '';
+        userSelect.querySelector('option:first-child').style.display = '';
+        
+        // Обновляем отображение опций пользователей
+        userOptions.forEach(option => {
+            const optionSchoolId = option.getAttribute('data-school-id');
+            const optionClassId = option.getAttribute('data-class-id');
+            let shouldShow = true;
+
+            if (!schoolId) {
+                shouldShow = false;
+            }
+            if (classId && optionClassId !== classId) {
+                shouldShow = false;
+            }
+
+            option.style.display = shouldShow ? '' : 'none';
+        });
+    }
+
+    // Обработчик изменения школы
+    schoolForUserSelect.addEventListener('change', function() {
+        const selectedSchoolId = this.value;
+        updateClassList(selectedSchoolId);
+    });
+
+    // Обработчик изменения класса
+    classForUserSelect.addEventListener('change', function() {
+        const selectedSchoolId = schoolForUserSelect.value;
+        const selectedClassId = this.value;
+        updateUserList(selectedSchoolId, selectedClassId);
+    });
+
+    // Обработчик изменения типа уведомления
+    typeSelect.addEventListener('change', function() {
+        const isUserType = this.value === 'USER';
+        if (isUserType) {
+            // Если выбран тип "Пользователь", сбрасываем все значения
+            schoolForUserSelect.value = '';
+            classForUserSelect.value = '';
+            userSelect.value = '';
+            // Показываем всех пользователей
+            updateUserList('', '');
+        }
+    });
+
+    // Инициализация при загрузке страницы
+    
+});

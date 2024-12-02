@@ -4,6 +4,7 @@ const adminController = require('../controllers/adminController');
 const adminAuth = require('../controllers/adminAuthController');
 const schoolController = require('../controllers/adminWeb/school.controller');
 const projectController = require('../controllers/adminWeb/project.controller');
+const notificationController = require('../controllers/adminWeb/notification.controller');
 const Class = require('../models/class.model');
 const User = require('../models/user.model');
 
@@ -72,6 +73,10 @@ router.get('/projects',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoo
 router.delete('/projects/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,projectController.deleteProject);
 router.get('/projects/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,projectController.editProject);
 router.get('/projects/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,projectController.createProject);
+
+//notification
+router.get('/notification',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,notificationController.getCreateNotification);
+// router.post('/notification/send', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,notificationController.postCreateNotification);
 
 // Загрузка классов школы
 router.get('/api/schools/:schoolId/classes', async (req, res) => {

@@ -1,0 +1,238 @@
+<html>
+<head>
+    <title>Отправка уведомления</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+        }
+        
+        .error {
+            color: #dc3545;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            background-color: #ffe6e6;
+        }
+        
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>Отправка уведомления</h1>
+        
+        <form action="/admin/notifications/send" method="POST" class="edit-school-form">
+            <% if (locals.error) { %>
+                <div class="error"><%= error %></div>
+            <% } %>
+
+            <div class="form-group">
+                <label for="type">Тип уведомления:</label>
+                <select id="type" name="type" required>
+                    <option value="">Выберите тип</option>
+                    <option value="SCHOOL" <%= locals.formData && formData.type === 'SCHOOL' ? 'selected' : '' %>>Школа</option>
+                    <option value="CLASS" <%= locals.formData && formData.type === 'CLASS' ? 'selected' : '' %>>Класс</option>
+                    <option value="USER" <%= locals.formData && formData.type === 'USER' ? 'selected' : '' %>>Пользователь</option>
+                </select>
+            </div>
+
+            <div class="form-group school-select" style="display: none;">
+                <label for="school">Школа:</label>
+                <select id="school" name="schoolId">
+                    <option value="">Выберите школу</option>
+                    <% if (locals.schools) { %>
+                        <% schools.forEach(function(school) { %>
+                            <option value="<%= school._id %>" 
+                                <%= locals.formData && formData.schoolId == school._id ? 'selected' : '' %>>
+                                <%= school.name %>
+                            </option>
+                        <% }); %>
+                    <% } %>
+                </select>
+            </div>
+
+            <div class="form-group class-select" style="display: none;">
+                <label for="schoolForClass">Школа:</label>
+                <select id="schoolForClass" name="schoolForClass">
+                    <option value="">Все школы</option>
+                    <% if (locals.schools) { %>
+                        <% schools.forEach(function(school) { %>
+                            <option value="<%= school._id %>"
+                                <%= locals.formData && formData.schoolForClass == school._id ? 'selected' : '' %>>
+                                <%= school.name %>
+                            </option>
+                        <% }); %>
+                    <% } %>
+                </select>
+                <h1></h1>
+
+                <label for="class">Класс:</label>
+                <select id="class" name="classId" required>
+                    <option value="">Выберите класс</option>
+                    <% if (locals.classes) { %>
+                        <% classes.forEach(function(classItem) { %>
+                            <option 
+                                value="<%= classItem._id %>"
+                                data-school-id="<%= classItem.schoolId %>"
+                                data-school-name="<%= schools.find(s => s._id.toString() === classItem.schoolId.toString())?.name || '' %>"
+                                data-class-name="<%= classItem.name %>"
+                                <%= locals.formData && formData.classId == classItem._id ? 'selected' : '' %>
+                                style="display: <%= locals.formData && formData.schoolForClass && formData.schoolForClass != classItem.schoolId ? 'none' : '' %>"
+                            >
+                                <%= classItem.name %>
+                                <% if (!locals.formData || !formData.schoolForClass) { %>
+                                    (<%= schools.find(s => s._id.toString() === classItem.schoolId.toString())?.name || '' %>)
+                                <% } %>
+                            </option>
+                        <% }); %>
+                    <% } %>
+                </select>
+            </div>
+
+            <div class="form-group user-select" style="display: none;">
+                <label for="schoolForUser">Школа:</label>
+                <select id="schoolForUser" name="schoolForUser">
+                    <option value="">Выберите школу</option>
+                    <option value="all">Все школы</option>
+                    <% if (locals.schools) { %>
+                        <% schools.forEach(function(school) { %>
+                            <option value="<%= school._id %>"
+                                <%= locals.formData && formData.schoolForUser == school._id ? 'selected' : '' %>>
+                                <%= school.name %>
+                            </option>
+                        <% }); %>
+                    <% } %>
+                </select>
+        
+                <h1></h1>
+                <label for="classForUser">Класс:</label>
+                <select id="classForUser" name="classForUser">
+                    <option value="">Все классы</option>
+                    <% if (locals.classes) { %>
+                        <% const filteredClasses = locals.formData && formData.schoolForUser 
+                            ? classes.filter(c => c.schoolId.toString() === formData.schoolForUser.toString())
+                            : classes %>
+                        <% filteredClasses.forEach(function(classItem) { %>
+                            <option 
+                                value="<%= classItem._id %>"
+                                data-school-id="<%= classItem.schoolId %>"
+                                <%= locals.formData && formData.classForUser == classItem._id ? 'selected' : '' %>
+                            >
+                                <%= classItem.name %>
+                                <% if (!locals.formData || !formData.schoolForUser) { %>
+                                    (<%= schools.find(s => s._id.toString() === classItem.schoolId.toString())?.name || '' %>)
+                                <% } %>
+                            </option>
+                        <% }); %>
+                    <% } %>
+                </select>
+        
+                <h1></h1>
+                <label for="userId">Пользователь:</label>
+                <select id="userId" name="userId" required>
+                    <option value="">Выберите пользователя</option>
+                    <% if (locals.users) { %>
+                        <% users.forEach(function(user) { %>
+                            <% 
+                                const schoolName = user.schoolId ? (schools.find(s => s._id.toString() === user.schoolId.toString())?.name || '') : '';
+                                const className = user.classId ? (classes.find(c => c._id.toString() === user.classId.toString())?.name || '') : '';
+                            %>
+                            <option 
+                                value="<%= user._id %>"
+                                data-school-id="<%= user.schoolId || '' %>"
+                                data-class-id="<%= user.classId || '' %>"
+                                data-school-name="<%= schoolName %>"
+                                data-class-name="<%= className %>"
+                                data-user-name="<%= user.name %>"
+                                <%= locals.formData && formData.userId == user._id ? 'selected' : '' %>
+                            >
+                                <%= user.name %>
+                                <% if (schoolName || className) { %>
+                                    (<%= [schoolName, className].filter(Boolean).join(' - ') %>)
+                                <% } %>
+                            </option>
+                        <% }); %>
+                    <% } %>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Заголовок:</label>
+                <input type="text" id="title" name="title" value="<%= locals.formData ? formData.title : '' %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="body">Сообщение:</label>
+                <textarea id="body" name="body" rows="4" required><%= locals.formData ? formData.body : '' %></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Отправить</button>
+                <a href="/admin/notifications" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </main>
+</body>
+</html>
