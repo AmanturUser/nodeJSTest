@@ -83,7 +83,7 @@
     <main class="container">
         <h1>Отправка уведомления</h1>
         
-        <form action="/admin/notifications/send" method="POST" class="edit-school-form">
+        <form action="/admin/notification" method="POST" class="edit-school-form">
             <% if (locals.error) { %>
                 <div class="error"><%= error %></div>
             <% } %>
@@ -129,7 +129,7 @@
                 <h1></h1>
 
                 <label for="class">Класс:</label>
-                <select id="class" name="classId" required>
+                <select id="class" name="classId">
                     <option value="">Выберите класс</option>
                     <% if (locals.classes) { %>
                         <% classes.forEach(function(classItem) { %>
@@ -191,7 +191,7 @@
         
                 <h1></h1>
                 <label for="userId">Пользователь:</label>
-                <select id="userId" name="userId" required>
+                <select id="userId" name="userId">
                     <option value="">Выберите пользователя</option>
                     <% if (locals.users) { %>
                         <% users.forEach(function(user) { %>
@@ -230,7 +230,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Отправить</button>
-                <a href="/admin/notifications" class="btn btn-secondary">Отмена</a>
+                <a href="/admin/dashboard" class="btn btn-secondary">Отмена</a>
             </div>
         </form>
     </main>

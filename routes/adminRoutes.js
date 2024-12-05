@@ -76,7 +76,7 @@ router.get('/projects/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminA
 
 //notification
 router.get('/notification',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,notificationController.getCreateNotification);
-// router.post('/notification/send', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,notificationController.postCreateNotification);
+router.post('/notification', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,notificationController.postCreateNotification);
 
 // Загрузка классов школы
 router.get('/api/schools/:schoolId/classes', async (req, res) => {

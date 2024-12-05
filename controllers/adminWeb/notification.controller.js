@@ -1,6 +1,78 @@
 const School = require('../../models/school.model');
 const Class = require('../../models/class.model');
 const User = require('../../models/user.model');
+const Notification = require("../../models/notification.model");
+const fcmService = require('../../firebase');
+const mongoose=require('mongoose');
+const authMiddleware = require('../../middlewares/authMiddleware');
+
+async function getFcmTokensBySchool(schoolId) {
+    try {
+      const users = await User.aggregate([
+        // Фильтруем по школе и непустому fcmToken
+        {
+          $match: { 
+            schoolId: new mongoose.Types.ObjectId(schoolId),
+            fcmToken: { 
+              $exists: true, 
+              $ne: null,
+              $ne: "" 
+            }
+          } 
+        },
+        
+        // Выбираем только fcmToken
+        { 
+          $project: { 
+            _id: 0, 
+            fcmToken: 1 
+          } 
+        }
+      ]);
+  
+      // Преобразуем в простой массив токенов
+      const uniqueTokens = [...new Set(users.map(user => user.fcmToken))];
+    
+    return uniqueTokens;
+    } catch (error) {
+      console.error('Error getting FCM tokens:', error);
+      throw error;
+    }
+  }
+
+
+  async function getFcmTokensByClass(classId) {
+    try {
+      const users = await User.aggregate([
+        // Фильтруем по школе и непустому fcmToken
+        {
+          $match: { 
+            classId: new mongoose.Types.ObjectId(classId),
+            fcmToken: { 
+              $exists: true, 
+              $ne: null,
+              $ne: "" 
+            }
+          } 
+        },
+        
+        // Выбираем только fcmToken
+        { 
+          $project: { 
+            _id: 0, 
+            fcmToken: 1 
+          } 
+        }
+      ]);
+
+      const uniqueTokens = [...new Set(users.map(user => user.fcmToken))];
+    
+    return uniqueTokens;
+    } catch (error) {
+      console.error('Error getting FCM tokens:', error);
+      throw error;
+    }
+  }
 
 exports.getCreateNotification = async (req, res) => {
     try {
@@ -21,20 +93,44 @@ exports.getCreateNotification = async (req, res) => {
 }}
 
 
-// exports.postCreateNotification = async (req, res) => {
-//     try {
-//         const { name, description } = req.body;
-//         const existingSchool = await School.findOne({ name: name });
-        
-//         if (existingSchool) {
-//             return res.status(404).render('error', { message: 'Школа с таким названием уже существует' });
-//         }
+exports.postCreateNotification = async (req, res) => {
+    const { type, title, body, data, schoolId, classId, userId } = req.body;
+  
+  try {
+    if(type=='SCHOOL'){
+        const tokens = await getFcmTokensBySchool(schoolId);
 
-//         const newSchool = new School({ name, description });
-//         await newSchool.save();
-//         res.redirect('/admin/schools');
-//     } catch (error) {
-//         console.error('Error creating school:', error);
-//         res.status(500).render('error', { message: 'Ошибка при создании школы' });
-//     }
-// };
+          console.log(tokens);
+
+          const result = await fcmService.sendToMultipleDevices(tokens, title, body, data);
+          const newNotification = new Notification({type, title, body, schoolId})
+          await newNotification.save();
+          res.redirect('/admin/notification');
+    }
+    if(type=='CLASS'){
+        const tokens = await getFcmTokensByClass(classId);
+
+          console.log('workClass');
+
+          const result = await fcmService.sendToMultipleDevices(tokens, title, body, data);
+          const newNotification = new Notification({type, title, body, classId})
+          await newNotification.save();
+          res.redirect('/admin/notification');
+    }
+    if(type=='USER'){
+        const user=await User.findById(userId);
+        const token = user.fcmToken;
+          console.log('workClass');
+          const result = await fcmService.sendToDevice(token, title, body, data);
+          const newNotification = new Notification({type, title, body, userId})
+          await newNotification.save();
+        //   const result = await fcmService.sendToMultipleDevices(tokens, title, body, data);
+        res.redirect('/admin/notification');
+    }
+    
+    
+  } catch (error) {
+    console.error('Error creating notification:', error);
+        res.status(500).render('error', { message: 'Ошибка при создании уведомления' });
+  }
+};
