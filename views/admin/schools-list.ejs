@@ -47,7 +47,7 @@
                     <% schools.forEach((school, index) => { %>
                         <tr data-school-id="<%= school._id %>">
                             <td><%= (currentPage - 1) * limit + index + 1 %></td>
-                            <td><a href="/admin/schools/<%= school._id %>"><%= school.name %></a></td>
+                            <td><%= school.name %></td>
                             <!-- <td><%= school.description || 'Описание отсутствует' %></td> -->
                             <td><%= school.classCount %></td>
                             <td><%= school.studentCount %></td>

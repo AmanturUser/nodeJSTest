@@ -6,6 +6,9 @@
             <input type="text" name="search" value="<%= locals.searchQuery || '' %>" placeholder="Поиск опросов...">
             <button type="submit" class="btn btn-search">Поиск</button>
         </form>
+        <div class="actions-container">
+            <a href="/admin/surveys/create" class="btn btn-create">Создать опрос</a>
+        </div>
         <% if (locals.surveys && surveys.length > 0) { %>
             <table class="schools-table">
                 <thead>

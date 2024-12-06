@@ -10,8 +10,14 @@
         
         <label for="schoolSelect">Выберите школу:</label>
         <select id="schoolSelect" name="schoolId" required>
-            <option value="">Выберите школу</option>
-            <!-- Опции будут добавлены динамически -->
+            <% if (schools.length!=1) { %>
+                <option value="">Выберите школу</option>
+            <% } %>
+            <% schools.forEach(function(school) { %>
+                <option value="<%= school._id %>" <%= locals.formData && formData.schoolId == school._id ? 'selected' : '' %>>
+                    <%= school.name %>
+                </option>
+            <% }); %>
         </select>
         
         <button type="submit" class="sp-button">Создать проект</button>
