@@ -1,55 +1,63 @@
-<div class="sp-container">
-    <h1>Создание нового проекта школы</h1>
+    <form action="/admin/projects/create" method="POST" class="project-form">
+        <h1>Создание нового проекта школы</h1>
+        
+        <div class="form-group">
+            <label>Название проекта:</label>
+            <input type="text" name="name" required>
+        </div>
     
-    <form id="projectForm" class="sp-form">
-        <label for="projectName">Название проекта:</label>
-        <input type="text" id="projectName" name="projectName" required>
+        <div class="form-group">
+            <label>Описание проекта:</label>
+            <textarea name="description" required></textarea>
+        </div>
+    
+        <div class="form-group">
+            <label>Школа:</label>
+            <select id="schoolSelect" name="schoolId">
+                <option value="">Все школы</option>
+                <% schools.forEach(function(school) { %>
+                    <option value="<%= school._id %>"><%= school.name %></option>
+                <% }); %>
+            </select>
+        </div>
         
-        <label for="projectDescription">Описание проекта:</label>
-        <textarea id="projectDescription" name="projectDescription" rows="4" required></textarea>
+        <div class="form-group">
+            <label>Класс:</label>
+            <select id="classSelect">
+                <option value="">Все классы</option>
+            </select>
+        </div>
         
-        <label for="schoolSelect">Выберите школу:</label>
-        <select id="schoolSelect" name="schoolId" required>
-            <% if (schools.length!=1) { %>
-                <option value="">Выберите школу</option>
-            <% } %>
-            <% schools.forEach(function(school) { %>
-                <option value="<%= school._id %>" <%= locals.formData && formData.schoolId == school._id ? 'selected' : '' %>>
-                    <%= school.name %>
-                </option>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="selectAll">
+                Выбрать всех видимых
+            </label>
+        </div>
+        
+        <div id="usersList" class="users-list">
+            <% users.forEach(function(user) { %>
+                <% if (user.schoolId && user.classId) { %>
+                    <div class="user-item" 
+                        data-school-id="<%= user.schoolId %>" 
+                        data-class-id="<%= user.classId %>">
+                        <label>
+                            <input type="checkbox" name="userIds[]" value="<%= user._id %>">
+                            <%= user.name %> <%= user.surname %>
+                            (<%= schools.find(s => s._id.toString() === user.schoolId.toString())?.name %> - 
+                            <%= classes.find(c => c._id.toString() === user.classId.toString())?.name %>)
+                        </label>
+                    </div>
+                <% } %>
             <% }); %>
-        </select>
+        </div>
         
-        <button type="submit" class="sp-button">Создать проект</button>
+        <div class="selected-users">
+            <h3>Выбранные участники (<span id="selectedCount">0</span>)</h3>
+            <div id="selectedUsersList"></div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Создать</button>
+            <a href="/admin/projects" class="btn btn-secondary">Отмена</a>
+         </div>
     </form>
-    
-    <h2>Добавление участников проекта</h2>
-    <div id="participantSelection" class="sp-class-section">
-        <label for="classSelect">Выберите класс:</label>
-        <select id="classSelect" name="classId">
-            <option value="">Сначала выберите школу</option>
-        </select>
-        
-        <div class="sp-select-all-container">
-            <input type="checkbox" id="selectAll">
-            <label for="selectAll">Выбрать всех</label>
-        </div>
-        
-        <div id="studentsList" class="sp-student-list">
-            <!-- Список учеников будет добавлен динамически -->
-        </div>
-    </div>
-    
-    <h3>Выбранные участники проекта</h3>
-    <ul id="currentParticipants" class="sp-participants-list sp-current-participants">
-        <!-- Список выбранных участников будет добавлен динамически -->
-    </ul>
-</div>
-
-<script>
-        // Глобальный объект для хранения данных
-         window.serverData = {
-            schools:  JSON.stringify(schools),
-            classes: JSON.stringify(classes)
-        };
-    </script>

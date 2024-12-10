@@ -14,7 +14,7 @@ const surveySchema = new mongoose.Schema({
   description: { type: String, required: true },
   options: [optionSchema],
   classes: [{ type: mongoose.Schema.Types.ObjectId, ref: ClassModel.modelName }],
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: User.modelName, required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: User.modelName},
   createdAt: { type: Date, default: Date.now },
   schoolId:{
     type : mongoose.Schema.Types.ObjectId,

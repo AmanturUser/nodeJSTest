@@ -891,3 +891,138 @@ exports.getSurveys = async (req, res) => {
     }
 };
 
+exports.createSurvey = async (req, res) => {
+    try {
+        const schools = await School.find().lean();
+        const classes = await Class.find().lean();
+        res.render('admin/survey/survey-create', { 
+            schools,
+            classes,
+            formData: req.session.formData,
+            layout: path.join(__dirname, "../../views/layouts/adminSurvey"),
+            footer: true,
+        });
+        delete req.session.formData;
+    } catch (error) {
+        console.error('Error loading project create page:', error);
+        res.status(500).render('error', { message: 'Ошибка при загрузке страницы создание опроса' });
+    }
+};
+
+exports.postCreateSurvey = async (req, res) => {
+    try {
+        const { name, description, options } = req.body;
+        let { classIds } = req.body;
+        
+        // Преобразуем classIds в массив, если это строка
+        if (!Array.isArray(classIds)) {
+            classIds = [classIds];
+        }
+
+        console.log(req.body);
+        // Проверка наличия необходимых полей
+        if (!name || !description || !Array.isArray(options) || options.length === 0 || !Array.isArray(classIds)) {
+          return res.status(400).json({ message: 'Неверные данные опроса' });
+        }
+    
+        const classes = await Class.find({ _id: { $in: classIds } });
+        if (classes.length !== classIds.length) {
+          return res.status(400).json({ message: 'Некоторые из указанных классов не существуют' });
+        }
+    
+        // Добавляем optionId к каждому варианту ответа
+        const optionsWithIds = options.map((option, index) => ({
+          ...option,
+          optionId: index + 1
+        }));
+    
+        const survey = new Survey({
+          name,
+          description,
+          options: optionsWithIds,
+          classes: classIds
+        });
+    
+        await survey.save();
+    
+        res.redirect('/admin/surveys');
+        // res.status(201).json({ message: 'Опрос успешно создан', survey });
+      } catch (error) {
+        console.error('Error creating survey:', error);
+        res.status(500).render({ message: 'Ошибка при создании опроса' });
+      }
+};
+
+exports.showEditForm = async (req, res) => {
+    try {
+        console.log(`id is ${req.params.id}`)
+        const survey = await Survey.findById(req.params.id);
+        const schools = await School.find().sort('name');
+        const classes = await Class.find().sort('name');
+        
+        if (!survey) {
+            res.status(500).render({ message: 'Опрос не найден' });
+        }
+
+        res.render('admin/survey/survey-edit', {
+            survey,
+            schools,
+            classes,
+            layout: path.join(__dirname, "../../views/layouts/adminSurvey"),
+            footer: true,
+        });
+    } catch (error) {
+        res.status(500).render({ message: 'Ошибка при загрузке данных' });
+    }
+}
+
+exports.updateSurvey = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, options, classIds } = req.body;
+
+        // Проверяем существование опроса
+        const survey = await Survey.findById(id);
+        if (!survey) {
+            return res.redirect('/admin/surveys');
+        }
+
+        const optionsWithIds = options.map((option, index) => ({
+            ...option,
+            optionId: index + 1
+          }));
+
+        // Обновляем данные
+        survey.name = name;
+        survey.description = description;
+        survey.options = optionsWithIds;
+        survey.classes = Array.isArray(classIds) ? classIds : [classIds];
+
+        await survey.save();
+
+        return res.redirect('/admin/surveys'); // добавляем return и используем redirect вместо render
+    } catch (error) {
+        console.error('Error in updateSurvey:', error);
+        return res.redirect(`/admin/surveys/edit/${req.params.id}`); // добавляем return и правильный путь
+    }
+}
+
+
+exports.deleteSurvey = async (req, res) => {
+    try {
+        const surveyId = req.params.id;
+
+        // Проверяем, есть ли связанные классы
+        // if (project.users.length > 0) {
+        //     return res.status(400).json({ success: false, message: 'Нельзя удалить проект, у которого есть участники' });
+        // }
+
+        // Если классов нет, удаляем школу
+        await Survey.findByIdAndDelete(surveyId);
+
+        res.json({ success: true, message: 'Проект успешно удален' });
+    } catch (error) {
+        console.error('Error deleting survey:', error);
+        res.status(500).json({ success: false, message: 'Ошибка при удалении опроса' });
+    }
+};

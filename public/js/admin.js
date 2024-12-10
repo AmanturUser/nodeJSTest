@@ -102,6 +102,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    document.body.addEventListener('click', function(event) {
+        const deleteButton = event.target.closest('.btn-deleteSurvey');
+        if (deleteButton) {
+            event.preventDefault();
+            const surveyId = deleteButton.dataset.surveyId;
+            deleteSurvey(surveyId);
+        }
+    });
+
     // Функция удаления школы
     function deleteSchool(schoolId) {
         if (confirm('Вы уверены, что хотите удалить эту школу?')) {
@@ -253,6 +262,36 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error:', error);
                 alert('Произошла ошибка при удалении проекта');
+            });
+        }
+    }
+
+    function deleteSurvey(surveyId) {
+        if (confirm('Вы уверены, что хотите удалить этот опрос?')) {
+            fetch(`/admin/surveys/${surveyId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const row = document.querySelector(`tr[data-survey-id="${surveyId}"]`);
+                    if (row) {
+                        row.remove();
+                        console.log('Project row removed');
+                    } else {
+                        console.error('Row not found');
+                    }
+                    alert('Опрос успешно удален');
+                } else {
+                    alert(data.message || 'Ошибка при удалении опроса');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при удалении опроса');
             });
         }
     }
@@ -444,4 +483,149 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализация при загрузке страницы
     
+});
+
+
+
+// public/js/project.js
+document.addEventListener('DOMContentLoaded', function() {
+
+    const schoolSelect = document.getElementById('schoolSelect');
+    const classSelect = document.getElementById('classSelect');
+    const selectAll = document.getElementById('selectAll');
+    const usersList = document.getElementById('usersList');
+    const selectedUsersList = document.getElementById('selectedUsersList');
+
+    // Инициализация при загрузке
+    initializeSelectedUsers();
+
+    function initializeSelectedUsers() {
+        const checkedCheckboxes = usersList.querySelectorAll('input[type="checkbox"]:checked');
+        console.log('Found checked checkboxes:', checkedCheckboxes.length); // для отладки
+
+        checkedCheckboxes.forEach(checkbox => {
+            const userItem = checkbox.closest('.user-item');
+            const userId = checkbox.value;
+            const userName = userItem.querySelector('label').textContent.trim();
+            
+            const div = document.createElement('div');
+            div.className = 'selected-user';
+            div.setAttribute('data-user-id', userId);
+            div.innerHTML = `
+                ${userName}
+                <button type="button" class="remove-user" onclick="removeSelectedUser('${userId}')">✕</button>
+            `;
+            selectedUsersList.appendChild(div);
+        });
+
+        updateSelectedCount();
+    }
+
+    if (schoolSelect) {
+        // Обработчик изменения школы
+        schoolSelect.addEventListener('change', function() {
+            updateClassList(this.value);
+            filterUsers();
+        });
+
+        // Обработчик изменения класса
+        classSelect.addEventListener('change', filterUsers);
+
+        // Обработчик "Выбрать всех"
+        selectAll.addEventListener('change', function() {
+            const visibleUsers = usersList.querySelectorAll('.user-item:not([style*="display: none"]) input[type="checkbox"]');
+            visibleUsers.forEach(checkbox => {
+                checkbox.checked = this.checked;
+                updateSelectedUsers(checkbox);
+            });
+        });
+
+        // Обработчик выбора отдельных пользователей
+        usersList.addEventListener('change', function(e) {
+            if (e.target.type === 'checkbox') {
+                updateSelectedUsers(e.target);
+            }
+        });
+    }
+
+    function updateClassList(schoolId) {
+        classSelect.innerHTML = '<option value="">Все классы</option>';
+            
+        if (!schoolId) return;
+
+        const classesSet = new Set();
+        usersList.querySelectorAll('.user-item').forEach(user => {
+            if (user.dataset.schoolId === schoolId) {
+                const classId = user.dataset.classId;
+                const className = user.querySelector('label').textContent.match(/\((.*?) -/)?.[1];
+                if (classId && className) {
+                    classesSet.add(JSON.stringify({ id: classId, name: className }));
+                }
+            }
+        });
+
+        Array.from(classesSet)
+            .map(classJson => JSON.parse(classJson))
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .forEach(classData => {
+                const option = document.createElement('option');
+                option.value = classData.id;
+                option.textContent = classData.name;
+                classSelect.appendChild(option);
+            });
+    }
+
+    function filterUsers() {
+        const schoolId = schoolSelect.value;
+        const classId = classSelect.value;
+
+        usersList.querySelectorAll('.user-item').forEach(user => {
+            const schoolMatch = !schoolId || user.dataset.schoolId === schoolId;
+            const classMatch = !classId || user.dataset.classId === classId;
+            user.style.display = (schoolMatch && classMatch) ? '' : 'none';
+        });
+
+        selectAll.checked = false;
+    }
+
+    function updateSelectedUsers(checkbox) {
+        const userItem = checkbox.closest('.user-item');
+        const userId = checkbox.value;
+        const userName = userItem.querySelector('label').textContent.trim();
+        const selectedItem = selectedUsersList.querySelector(`[data-user-id="${userId}"]`);
+        
+        if (checkbox.checked && !selectedItem) {
+            const div = document.createElement('div');
+            div.className = 'selected-user';
+            div.setAttribute('data-user-id', userId);
+            div.innerHTML = `
+                ${userName}
+                <button type="button" class="remove-user" onclick="removeSelectedUser('${userId}')">✕</button>
+            `;
+            selectedUsersList.appendChild(div);
+        } else if (!checkbox.checked && selectedItem) {
+            selectedItem.remove();
+        }
+
+        // Обновляем счетчик выбранных пользователей
+        updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+        const count = selectedUsersList.children.length;
+        document.getElementById('selectedCount').textContent = count;
+    }
+
+    // Глобальная функция для удаления выбранного пользователя
+    window.removeSelectedUser = function(userId) {
+        const checkbox = usersList.querySelector(`input[value="${userId}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+        }
+        const selectedItem = selectedUsersList.querySelector(`[data-user-id="${userId}"]`);
+        if (selectedItem) {
+            selectedItem.remove();
+        }
+        updateSelectedCount();
+    };
 });

@@ -2,9 +2,30 @@ const Project = require('../../models/project.model');
 const School = require('../../models/school.model');
 const Class = require('../../models/class.model');
 const User = require('../../models/user.model');
+const mongoose=require('mongoose');
 const path = require('path');
+const ProjectServices = require("../../services/project.services");
 
 
+
+async function validateUsers(userIds) {
+    const invalidUsers = [];
+  
+    for (const userId of userIds) {
+      try {
+        const _id = new mongoose.Types.ObjectId(userId);
+        const checkUser = await User.findById(_id);
+        if (!checkUser) {
+          invalidUsers.push(userId);
+        }
+      } catch (error) {
+        console.error(`Error checking user ${userId}:`, error);
+        invalidUsers.push(userId);
+      }
+    }
+  
+    return invalidUsers;
+  }
 
 // Projects controller
 exports.getProjectList = async (req,res,next) => {
@@ -103,30 +124,99 @@ exports.deleteProject = async (req, res) => {
 
 exports.editProject = async (req, res) => {
     try {
-        const projectId = req.params.id;
-        const project = await Project.findById(projectId);
-        const schools = await School.find();
+        const project = await Project.findById(req.params.id);
+        if (!project) {
+            return res.redirect('/admin/projects');
+        }
 
-        res.render('admin/project/project-edit', { 
+        console.log('Project userIds:', project.user); // для проверки
+
+        const schools = await School.find().sort('name');
+        const classes = await Class.find().sort('name');
+        const users = await User.find({ role: 0 })
+            .where('schoolId').exists(true)
+            .where('classId').exists(true)
+            .sort('name');
+
+        // Преобразуем userIds в строки для корректного сравнения
+        // project.users = project.users.map(id => id.toString());
+        
+        res.render('admin/project/project-edit', {
             project,
-            schools
+            schools,
+            classes,
+            users,
         });
     } catch (error) {
-        console.error('Error loading project edit page:', error);
+        console.error('Error in showEditForm:', error);
         res.status(500).send('Ошибка при загрузке страницы редактирования проекта');
+
     }
 };
+
+exports.updateProject = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, users } = req.body;
+
+        const project = await Project.findById(id);
+        if (!project) {
+            return res.redirect('/admin/surveys');
+        }
+
+        project.name = name;
+        project.description = description;
+        project.users = Array.isArray(users) ? users : [users];
+        
+        await project.save();
+        
+        res.redirect('/admin/projects');
+    } catch (error) {
+        console.error('Error:', error);
+
+        res.status(500).send('Ошибка при загрузке страницы создание проекта');
+    }
+}
 
 exports.createProject = async (req, res) => {
     try {
         const schools = await School.find().lean();
         const classes = await Class.find().lean();
+        const users = await User.find({ role: 0 }).sort('name');
         res.render('admin/project/project-create', { 
             schools,
-            classes
+            classes,
+            users
         });
     } catch (error) {
         console.error('Error loading project create page:', error);
         res.status(500).send('Ошибка при загрузке страницы создание проекта');
     }
 };
+
+exports.postCreateProject = async (req,res,next) => {
+    try {
+        const {name, description, userIds} = req.body;
+
+        const invalidUsers = await validateUsers(userIds);
+
+        if (invalidUsers.length > 0) {
+            return res.status(404).json({ 
+              message: 'Некоторые пользователи не найдены', 
+              invalidUsers 
+            });
+          }
+
+        let newProject = await ProjectServices.createProject(name, description, userIds);
+
+        await User.updateMany(
+            { _id: { $in: userIds } },
+            { $addToSet: { projects: newProject } }
+          );
+
+          res.redirect('/admin/projects');
+        // res.json({status: true, success: newProject});
+    } catch (error) {
+        next(error);
+    }
+}

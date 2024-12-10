@@ -1,0 +1,86 @@
+<!-- views/admin/survey/edit.ejs -->
+<div class="survey-form">
+    <h1>Редактирование опроса</h1>
+    
+    <form action="/admin/surveys/<%= survey._id %>/edit" method="POST">
+        <div class="form-group">
+            <label>Название опроса:</label>
+            <input 
+                type="text" 
+                name="name" 
+                value="<%= survey.name %>"
+                required
+            >
+        </div>
+        
+        <div class="form-group">
+            <label>Описание:</label>
+            <textarea 
+                name="description" 
+                rows="4" 
+                required
+            ><%= survey.description %></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Школа:</label>
+            <select id="schoolFilter" name="schoolFilter">
+                <option value="">Все школы</option>
+                <% schools.forEach(function(school) { %>
+                    <option value="<%= school._id %>">
+                        <%= school.name %>
+                    </option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Классы:</label>
+            <div class="select-actions">
+                <a href="#" id="selectAll">Выбрать всех</a> | 
+                <a href="#" id="clearAll">Очистить выбор</a>
+            </div>
+            <div class="custom-select">
+                <div class="select-options">
+                    <% classes.forEach(function(classItem) { %>
+                        <div class="option-item" data-school-id="<%= classItem.schoolId %>">
+                            <label class="checkbox-label">
+                                <input 
+    type="checkbox" 
+    name="classIds" 
+    value="<%= classItem._id %>"
+    <%= survey.classIds && survey.classIds.includes(classItem._id.toString()) ? 'checked' : '' %>
+>
+                                <span><%= classItem.name %></span>
+                            </label>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Варианты ответов:</label>
+            <div id="optionsContainer" class="options-container">
+                <% survey.options.forEach(function(option, index) { %>
+                    <div class="option-item">
+                        <input 
+                            type="text" 
+                            name="options[<%= index %>][optionName]" 
+                            value="<%= option.optionName %>"
+                            placeholder="Введите вариант ответа" 
+                            required
+                        >
+                        <button type="button" class="remove-option" onclick="removeOption(this)">✕</button>
+                    </div>
+                <% }); %>
+            </div>
+            <button type="button" class="add-option">Добавить вариант</button>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a href="/admin/surveys" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>

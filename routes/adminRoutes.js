@@ -60,9 +60,15 @@ router.delete('/pupils/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,sc
 
 
 router.get('/surveys',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,schoolController.getSurveys);
+router.get('/surveys/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,schoolController.createSurvey);
+router.delete('/surveys/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.deleteSurvey);
+router.post('/surveys/create', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.postCreateSurvey);
+router.get('/admin/surveys/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdmin, schoolController.showEditForm);
+router.post('/admin/surveys/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdmin, schoolController.updateSurvey);
 
 router.get('/schools/:id/pupils', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.getSchoolStudents);
 router.get('/schools/:id/admins', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.getSchoolAdmins);
+
 // router.get('/users', adminController.getSchoolAdmins);
 // router.get('/create-school-admin', adminController.getCreateSchoolAdmin);
 // router.post('/create-school-admin', adminController.postCreateSchoolAdmin);
@@ -72,7 +78,9 @@ router.get('/schools/:id/admins', adminAuth.isAuthenticated,adminAuth.isSuperAdm
 router.get('/projects',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,projectController.getProjectList);
 router.delete('/projects/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,projectController.deleteProject);
 router.get('/projects/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,projectController.editProject);
+router.post('/projects/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,projectController.updateProject);
 router.get('/projects/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,projectController.createProject);
+router.post('/projects/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,projectController.postCreateProject);
 
 //notification
 router.get('/notification',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,notificationController.getCreateNotification);

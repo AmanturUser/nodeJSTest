@@ -1,0 +1,34 @@
+<!-- views/partials/header.ejs -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель</title>
+    <link rel="stylesheet" href="/css/survey.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav>
+            <ul>
+                <li><a href="/admin/dashboard">Главная</a></li>
+                <li><a href="/admin/schools">Школы</a></li>
+                <li><a href="/admin/classes">Классы</a></li>
+                <li><a href="/admin/list">Администраторы</a></li>
+                <li><a href="/admin/pupils">Ученики</a></li>
+                <li><a href="/admin/surveys">Опросы</a></li>
+                <li><a href="/admin/projects">Проекты</a></li>
+                <li><a href="/admin/notification">Уведомления</a></li>
+                
+                <!-- Добавьте другие пункты меню по необходимости -->
+            </ul>
+        </nav>
+        <div class="logout-button"></div>
+            <a href="/admin/logout" class="btn-logout" onclick="return confirm('Вы уверены, что хотите выйти?');">
+                <i class="fas fa-sign-out-alt"></i> Выйти
+            </a>
+        </div>
+    </header>
+    <main>
