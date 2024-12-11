@@ -1,90 +1,97 @@
 // survey script
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Создаем уникальный идентификатор формы опроса
-    const surveyForm = document.querySelector('.survey-form');
-    if (!surveyForm) return;
+    const optionsContainer = document.getElementById('optionsContainer');
+    let optionsCount = optionsContainer ? optionsContainer.children.length : 0;
 
-    let optionsCount = 0; // Счетчик для опций
-
-    // Добавление варианта ответа
-    function addOption(value = '') {
-        const container = document.getElementById('optionsContainer');
-        if (!container) return;
+    // Функция добавления варианта ответа
+    window.addOption = function() {
+        if (!optionsContainer) return;
 
         const optionDiv = document.createElement('div');
         optionDiv.className = 'option-item';
+        optionDiv.style.display = 'flex';
+        optionDiv.style.marginBottom = '10px';
         
         optionDiv.innerHTML = `
             <input 
                 type="text" 
                 name="options[${optionsCount}][optionName]" 
-                value="${value}"
                 placeholder="Введите вариант ответа" 
                 required
+                style="flex-grow: 1; margin-right: 10px;"
             >
             <button type="button" class="remove-option" onclick="removeOption(this)">✕</button>
         `;
         
-        container.appendChild(optionDiv);
+        optionsContainer.appendChild(optionDiv);
         optionsCount++;
-    }
+    };
 
-    // Удаление варианта ответа
+    // Функция удаления варианта ответа
     window.removeOption = function(button) {
-        const container = document.getElementById('optionsContainer');
-        const optionItems = container.querySelectorAll('.option-item');
+        const optionItems = optionsContainer.querySelectorAll('.option-item');
         
         // Проверяем, что это не последний элемент
         if (optionItems.length > 1) {
             button.closest('.option-item').remove();
-            // Перенумеруем оставшиеся опции
             renumberOptions();
         }
     };
 
-    // Перенумерация опций после удаления
+    // Перенумерация опций
     function renumberOptions() {
-        const container = document.getElementById('optionsContainer');
-        const inputs = container.querySelectorAll('input[type="text"]');
+        const inputs = optionsContainer.querySelectorAll('input[type="text"]');
         inputs.forEach((input, index) => {
             input.name = `options[${index}][optionName]`;
         });
         optionsCount = inputs.length;
     }
 
-    // Добавляем обработчик для кнопки добавления опции
-    const addButton = document.querySelector('.add-option');
-    if (addButton) {
-        addButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            addOption();
-        });
-    }
+    // Обработка фильтрации по школе
+    const schoolSelect = document.getElementById('schoolFilter');
+    if (schoolSelect) {
+        schoolSelect.addEventListener('change', function() {
+            // Сохраняем текущие значения вариантов ответов
+            const currentOptions = Array.from(optionsContainer.querySelectorAll('input[type="text"]'))
+                .map(input => input.value);
 
-    // Инициализация первой опции, если нет существующих
-    const container = document.getElementById('optionsContainer');
-    if (container && container.children.length === 0) {
-        addOption();
-    }
+            // Очищаем и пересоздаем варианты с сохраненными значениями
+            optionsContainer.innerHTML = '';
+            optionsCount = 0;
 
-    // Фильтрация классов по школе
-    const schoolFilter = document.getElementById('schoolFilter');
-    if (schoolFilter) {
-        schoolFilter.addEventListener('change', function() {
-            const selectedSchoolId = this.value;
-            const options = document.querySelectorAll('.survey-option-item');
-            
-            options.forEach(option => {
-                const schoolId = option.getAttribute('data-school-id');
-                if (!selectedSchoolId || selectedSchoolId === schoolId) {
-                    option.style.display = '';
-                } else {
-                    option.style.display = 'none';
-                    option.querySelector('input[type="checkbox"]').checked = false;
-                }
+            currentOptions.forEach(value => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option-item';
+                optionDiv.style.display = 'flex';
+                optionDiv.style.marginBottom = '10px';
+                
+                optionDiv.innerHTML = `
+                    <input 
+                        type="text" 
+                        name="options[${optionsCount}][optionName]" 
+                        value="${value}"
+                        placeholder="Введите вариант ответа" 
+                        required
+                        style="flex-grow: 1; margin-right: 10px;"
+                    >
+                    <button type="button" class="remove-option" onclick="removeOption(this)">✕</button>
+                `;
+                
+                optionsContainer.appendChild(optionDiv);
+                optionsCount++;
             });
+
+            // Если нет вариантов, добавляем один пустой
+            if (optionsCount === 0) {
+                addOption();
+            }
         });
+    }
+
+    // Если нет вариантов при загрузке, добавляем один пустой
+    if (optionsContainer && optionsContainer.children.length === 0) {
+        addOption();
     }
 });
 
@@ -144,24 +151,4 @@ document.getElementById('clearAll').addEventListener('click', function(e) {
     e.preventDefault();
     const checkboxes = document.querySelectorAll('.select-options input[type="checkbox"]');
     checkboxes.forEach(checkbox => checkbox.checked = false);
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const schoolFilter = document.getElementById('schoolFilter');
-    
-    schoolFilter.addEventListener('change', function() {
-        const selectedSchoolId = this.value;
-        const options = document.querySelectorAll('.option-item');
-        
-        options.forEach(option => {
-            const schoolId = option.getAttribute('data-school-id');
-            if (!selectedSchoolId || selectedSchoolId === schoolId) {
-                option.style.display = '';
-            } else {
-                option.style.display = 'none';
-                // Снимаем выделение с скрытых элементов
-                option.querySelector('input[type="checkbox"]').checked = false;
-            }
-        });
-    });
 });
