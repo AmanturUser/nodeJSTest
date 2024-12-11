@@ -557,7 +557,7 @@ document.addEventListener('DOMContentLoaded', function() {
         usersList.querySelectorAll('.user-item').forEach(user => {
             if (user.dataset.schoolId === schoolId) {
                 const classId = user.dataset.classId;
-                const className = user.querySelector('label').textContent.match(/\((.*?) -/)?.[1];
+                const className = user.querySelector('label').textContent.split(' - ')[1].replace(')', '');
                 if (classId && className) {
                     classesSet.add(JSON.stringify({ id: classId, name: className }));
                 }
