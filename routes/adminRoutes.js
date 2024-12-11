@@ -44,17 +44,17 @@ router.get('/schools/:id/classes',adminAuth.isAuthenticated,adminAuth.isSuperAdm
 router.get('/schools/:id/classes/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.getCreateClass);
 
 
-router.get('/classes',adminAuth.isAuthenticated,adminAuth.isSuperAdmin, schoolController.getClassesList);
-router.get('/classes/create', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.getCreateClass);
+router.get('/classes',adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.getClassesList);
+router.get('/classes/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.getCreateClass);
 
 router.post('/classes/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdminCRUD,schoolController.postCreateClass);
-router.get('/classes/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.getClass);
+router.get('/classes/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdminCRUD,schoolController.getClass);
 router.get('/classes/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdminCRUD,schoolController.getEditClass);
 router.post('/classes/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdminCRUD,schoolController.postEditClass);
 router.delete('/classes/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdminCRUD,schoolController.deleteClass);
 
 router.get('/pupils',adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.getPupils);
-router.delete('/pupils/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.deletePupil);
+router.delete('/pupils/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.deletePupil);
 // router.get('/pupils/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.getEditPupil);
 // router.post('/pupils/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.postEditPupil);
 
@@ -62,9 +62,9 @@ router.delete('/pupils/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,sc
 router.get('/surveys',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,schoolController.getSurveys);
 router.get('/surveys/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,schoolController.createSurvey);
 router.delete('/surveys/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.deleteSurvey);
-router.post('/surveys/create', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.postCreateSurvey);
-router.get('/admin/surveys/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdmin, schoolController.showEditForm);
-router.post('/admin/surveys/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdmin, schoolController.updateSurvey);
+router.post('/surveys/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.postCreateSurvey);
+router.get('/admin/surveys/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.showEditForm);
+router.post('/admin/surveys/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.updateSurvey);
 
 router.get('/schools/:id/pupils', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.getSchoolStudents);
 router.get('/schools/:id/admins', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.getSchoolAdmins);

@@ -30,6 +30,13 @@
             <label>Класс:</label>
             <select id="classSelect">
                 <option value="">Все классы</option>
+                <% if (classes) { %>
+                    <% classes.forEach(function(classItem) { %>
+                        <option value="<%= classItem._id %>">
+                            <%= classItem.name %>
+                        </option>
+                    <% }); %>
+                <% } %>
             </select>
         </div>
 

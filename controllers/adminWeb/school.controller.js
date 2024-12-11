@@ -70,6 +70,9 @@ exports.getCreateClass = async (req, res) => {
         if(req.params.id){
             const school=await School.findById(schoolId);
             schools=[school];
+        }else if(req.session.userRole===1){
+            const school=await School.findById(req.session.schoolId);
+            schools=[school];
         }else{
             schools=await School.find();
         }
@@ -79,9 +82,21 @@ exports.getCreateClass = async (req, res) => {
             return res.status(404).render('error', { message: 'Школ не найдено' });
         }
 
-        res.render('admin/class-create', { 
-            schools
-        });
+        if(req.session.userRole===1){
+            res.render('admin/class-create', { 
+                schools,
+                layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                footer: true,
+                headerTitle: `Создать класс`,
+                currentPageTitle: 'classes',
+                schoolId: req.session.schoolId
+            });
+        }else{
+            res.render('admin/class-create', { 
+                schools
+            });
+        }
+        
     } catch (error) {
         console.error('Error fetching school data:', error);
         res.status(500).render('error', { message: 'Ошибка при загрузке данных школ' });
@@ -118,7 +133,7 @@ exports.postCreateClass = async (req, res) => {
         const newClass = new Class({ name, description, schoolId });
         await newClass.save();
         if(req.session.userRole===1){
-            res.redirect(`/admin/schools/${schoolId}/classes`);    
+            res.redirect(`/admin/classes`);    
         }else{
             res.redirect('/admin/classes');
         }
@@ -388,11 +403,22 @@ exports.getClassesList = async (req, res) => {
         const searchQuery = req.query.search || '';
         const searchRegex = new RegExp(searchQuery, 'i');
 
-        const classesQuery = Class.find({ name: searchRegex })
+        var classesQuery;
+        if(req.session.userRole===1){
+            classesQuery = Class.find({ name: searchRegex, schoolId: req.session.schoolId})
             .populate('name')
             .skip(skip)
             .limit(limit)
             .lean();
+        }else{
+            classesQuery = Class.find({ name: searchRegex })
+            .populate('name')
+            .skip(skip)
+            .limit(limit)
+            .lean();
+        }
+
+        
 
         const [classes, totalClasses] = await Promise.all([
             classesQuery.exec(),
@@ -413,6 +439,21 @@ exports.getClassesList = async (req, res) => {
 
         const totalPages = Math.ceil(totalClasses / limit);
 
+        if(req.session.userRole===1){
+            res.render('admin/classes', {
+                classes: classesWithStats,
+                currentPage: page,
+                totalPages,
+                totalClasses,
+                searchQuery,
+                limit,
+                layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                footer: true,
+                headerTitle: `Классы`,
+                currentPageTitle: 'classes',
+                schoolId: req.session.schoolId
+            });
+        }
         res.render('admin/classes', {
             classes: classesWithStats,
             currentPage: page,
@@ -440,11 +481,25 @@ exports.getClass = async (req, res) => {
             .select('name surname email rating')
             .sort({ rating: -1 }); // Сортировка по рейтингу (по убыванию)
 
-        res.render('admin/class-details', {
-            classItem,
-            students,
-            studentCount: students.length
-        });
+            if(req.session.userRole===1){
+                res.render('admin/class-details', {
+                    classItem,
+                    students,
+                    studentCount: students.length,
+                    layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                    footer: true,
+                    headerTitle: `Класс`,
+                    currentPageTitle: 'classes',
+                    schoolId: classItem.schoolId
+                });
+            }else{
+                res.render('admin/class-details', {
+                    classItem,
+                    students,
+                    studentCount: students.length
+                });
+            }
+        
     } catch (error) {
         console.error('Error fetching class details:', error);
         res.status(500).render('error', { message: 'Ошибка при загрузке информации о классе' });
@@ -518,7 +573,7 @@ exports.postEditClass = async (req, res) => {
         await myClass.save();
 
         if(req.session.userRole===1){
-            res.redirect(`/admin/schools/${schoolId}/classes`);
+            res.redirect(`/admin/classes`);
         }else{
             res.redirect('/admin/classes');
         }
@@ -819,9 +874,14 @@ exports.getSurveys = async (req, res) => {
         let surveysQuery;
         
         if(req.session.userRole===1){
-            surveysQuery = Survey.find({name: searchRegex, schoolId: req.session.schoolId})
-            .populate('name')
-            .skip(skip)
+            const schoolClasses = await Class.find({ schoolId: req.session.schoolId }, '_id');
+            const classIds = schoolClasses.map(cls => cls._id);
+
+            // Теперь ищем опросы, где хотя бы один класс из массива classIds есть в массиве classes
+            surveysQuery = Survey.find({
+                name: searchRegex,
+                classes: { $in: classIds }  // или classIds если у вас поле называется classIds
+            }).skip(skip)
             .limit(limit)
             .lean();
         }else{
@@ -893,15 +953,37 @@ exports.getSurveys = async (req, res) => {
 
 exports.createSurvey = async (req, res) => {
     try {
-        const schools = await School.find().lean();
-        const classes = await Class.find().lean();
-        res.render('admin/survey/survey-create', { 
-            schools,
-            classes,
-            formData: req.session.formData,
-            layout: path.join(__dirname, "../../views/layouts/adminSurvey"),
-            footer: true,
-        });
+        var schools;
+        var classes;
+        if(req.session.userRole===1){
+            schools = await School.findById(req.session.schoolId).lean();
+            
+                schools=[schools];
+            classes = await Class.find({schoolId: req.session.schoolId}).lean();
+
+            res.render('admin/survey/survey-create', { 
+                schools,
+                classes,
+                formData: req.session.formData,
+                layout: path.join(__dirname, "../../views/layouts/adminSchoolSurvey"),
+                footer: true,
+                headerTitle: `Опросы`,
+                currentPageTitle: 'surveys',
+                title: `Опросы`,
+                schoolId: req.session.schoolId
+            });
+        }else{
+            schools = await School.find().lean();
+            classes = await Class.find().lean();
+
+            res.render('admin/survey/survey-create', { 
+                schools,
+                classes,
+                formData: req.session.formData,
+                layout: path.join(__dirname, "../../views/layouts/adminSurvey"),
+                footer: true,
+            });
+        }
         delete req.session.formData;
     } catch (error) {
         console.error('Error loading project create page:', error);
@@ -957,20 +1039,40 @@ exports.showEditForm = async (req, res) => {
     try {
         console.log(`id is ${req.params.id}`)
         const survey = await Survey.findById(req.params.id);
-        const schools = await School.find().sort('name');
-        const classes = await Class.find().sort('name');
+        var schools = await School.find().sort('name');
+        var classes = await Class.find().sort('name');
         
         if (!survey) {
             res.status(500).render({ message: 'Опрос не найден' });
         }
 
-        res.render('admin/survey/survey-edit', {
-            survey,
-            schools,
-            classes,
-            layout: path.join(__dirname, "../../views/layouts/adminSurvey"),
-            footer: true,
-        });
+        if(req.session.userRole===1){
+            schools = await School.findById(req.session.schoolId).sort('name');
+            schools=[schools];
+            classes = await Class.find({schoolId: req.session.schoolId}).sort('name');
+            res.render('admin/survey/survey-edit', {
+                survey,
+                schools,
+                classes,
+                layout: path.join(__dirname, "../../views/layouts/adminSchoolSurvey"),
+                footer: true,
+                headerTitle: `Опросы`,
+                currentPageTitle: 'surveys',
+                title: `Опросы`,
+                schoolId: req.session.schoolId
+            });
+        }else{
+            schools = await School.find().sort('name');
+            classes = await Class.find().sort('name');
+            res.render('admin/survey/survey-edit', {
+                survey,
+                schools,
+                classes,
+                layout: path.join(__dirname, "../../views/layouts/adminSurvey"),
+                footer: true,
+            });
+        }
+        
     } catch (error) {
         res.status(500).render({ message: 'Ошибка при загрузке данных' });
     }

@@ -40,13 +40,20 @@ exports.getProjectList = async (req,res,next) => {
 
         let projectQuery;
 
-        if(req.session.userRole===1){
-            projectQuery = Project.find({name: searchRegex, schoolId: req.session.schoolId})
-            .populate('name')
+        if (req.session.userRole === 1) {
+            // Сначала получаем всех пользователей данной школы
+            const schoolUsers = await User.find({ schoolId: req.session.schoolId }, '_id');
+            const userIds = schoolUsers.map(user => user._id);
+         
+            // Ищем проекты, где хотя бы один пользователь из школы есть в массиве users
+            projectQuery = Project.find({
+                name: searchRegex,
+                users: { $in: userIds }
+            })
             .skip(skip)
             .limit(limit)
             .lean();
-        }else{
+         }else{
             projectQuery = Project.find({name: searchRegex })
             .populate('name')
             .skip(skip)
@@ -131,22 +138,45 @@ exports.editProject = async (req, res) => {
 
         console.log('Project userIds:', project.user); // для проверки
 
-        const schools = await School.find().sort('name');
-        const classes = await Class.find().sort('name');
-        const users = await User.find({ role: 0 })
-            .where('schoolId').exists(true)
-            .where('classId').exists(true)
-            .sort('name');
+        var schools;
+        var classes;
+        var users;
 
         // Преобразуем userIds в строки для корректного сравнения
         // project.users = project.users.map(id => id.toString());
+        if(req.session.userRole===1){
+            schools = await School.findById(req.session.schoolId).sort('name');
+            classes = await Class.find({schoolId: req.session.schoolId}).sort('name');
+            users = await User.find({ role: 0, schoolId: req.session.schoolId})
+                .sort('name');
+            
+            schools=[schools];
+
+                res.render('admin/project/project-edit', {
+                    project,
+                    schools,
+                    classes,
+                    users,
+                    layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                    headerTitle: `Проекты`,
+                    currentPageTitle: 'projects',
+                    schoolId: req.session.schoolId
+                });
+        }else{
+            const schools = await School.find().sort('name');
+            const classes = await Class.find().sort('name');
+            const users = await User.find({ role: 0 })
+                .where('schoolId').exists(true)
+                .where('classId').exists(true)
+                .sort('name');
+            res.render('admin/project/project-edit', {
+                project,
+                schools,
+                classes,
+                users,
+            });
+        }
         
-        res.render('admin/project/project-edit', {
-            project,
-            schools,
-            classes,
-            users,
-        });
     } catch (error) {
         console.error('Error in showEditForm:', error);
         res.status(500).send('Ошибка при загрузке страницы редактирования проекта');
@@ -169,7 +199,7 @@ exports.updateProject = async (req, res) => {
         project.users = Array.isArray(users) ? users : [users];
         
         await project.save();
-        
+
         res.redirect('/admin/projects');
     } catch (error) {
         console.error('Error:', error);
