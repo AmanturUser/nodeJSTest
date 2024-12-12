@@ -19,7 +19,7 @@ router.get('/enter-otp', adminAuth.getEnterOtpPage);
 router.post('/enter-otp', adminAuth.postEnterOtp);
 
 
-router.get('/dashboard',adminAuth.isAuthenticated,adminAuth.isSuperAdmin, adminController.getDashboard);
+router.get('/dashboard',adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, adminController.getDashboard);
 
 router.get('/dashboardSchool',adminAuth.isAuthenticated,adminAuth.isSchoolAdmin, adminController.getDashboardSchool);
 

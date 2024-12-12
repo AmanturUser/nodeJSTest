@@ -107,7 +107,7 @@ exports.postEnterOtp = async (req, res) => {
                 
         if(user.role===1){
             req.session.schoolId = user.schoolId;
-            res.redirect(`/admin/schools/${user.schoolId}`);
+            res.redirect('/admin/dashboard');
         }else{
             res.redirect('/admin/dashboard');
         }

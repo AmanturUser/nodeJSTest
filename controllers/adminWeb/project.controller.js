@@ -241,7 +241,10 @@ exports.postCreateProject = async (req,res,next) => {
 
         await User.updateMany(
             { _id: { $in: userIds } },
-            { $addToSet: { projects: newProject } }
+            { 
+                $addToSet: { projects: newProject },
+                $inc: { rating: 1 }
+             },
           );
 
           res.redirect('/admin/projects');

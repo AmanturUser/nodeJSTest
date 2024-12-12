@@ -5,6 +5,7 @@ const Class = require('../../models/class.model');
 const Survey = require('../../models/survey.model');
 const SurveyResponse = require('../../models/surveyResponse.model');
 
+
 exports.getSchools = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;

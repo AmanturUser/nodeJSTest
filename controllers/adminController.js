@@ -6,17 +6,52 @@ const path = require('path');
 
 exports.getDashboard = async (req, res) => {
   try {
-    const schoolCount = await School.countDocuments();
-    const classCount = await Class.countDocuments();
-    const teacherCount = await User.countDocuments({ role: 1 });
-    const pupilCount = await User.countDocuments({ role: 0 });
+    if(req.session.userRole===1){
+      const schoolId = req.session.schoolId;
+        const school = await School.findById(schoolId);
+        
+        if (!school) {
+            return res.status(404).render('404', { message: 'Школа не найдена' });
+        }
 
-    res.render('admin/dashboard', {
-      schoolCount,
-      classCount,
-      teacherCount,
-      pupilCount
-    });
+        const classes = await Class.find({ schoolId: school._id });
+            const classIds = classes.map(c => c._id);
+
+            const [studentCount, teacherCount] = await Promise.all([
+                User.countDocuments({ classId: { $in: classIds }, role: 0 }),
+                User.countDocuments({ classId: { $in: classIds }, role: 1 })
+            ]);
+
+        // Получаем список администраторов школы
+        const schoolAdmins = await User.find({ classId: { $in: classIds }, role: 1}).select('name email');
+
+        
+            res.render('admin/school', { 
+                school, 
+                classCount: classes.length,
+                studentCount, 
+                teacherCount, 
+                schoolAdmins,
+                layout: path.join(__dirname, "../views/layouts/schoolAdmin"),
+                footer: true,
+                headerTitle: `Школа`,
+                currentPageTitle: 'home',
+                schoolId: schoolId
+            });
+    }else{
+      const schoolCount = await School.countDocuments();
+      const classCount = await Class.countDocuments();
+      const teacherCount = await User.countDocuments({ role: 1 });
+      const pupilCount = await User.countDocuments({ role: 0 });
+  
+      res.render('admin/dashboard', {
+        schoolCount,
+        classCount,
+        teacherCount,
+        pupilCount
+      });
+    }
+    
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
     res.status(500).render('error', { message: 'Ошибка при загрузке данных панели управления' });
