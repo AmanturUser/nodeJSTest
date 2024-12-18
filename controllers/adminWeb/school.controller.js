@@ -2,8 +2,11 @@ const School = require('../../models/school.model');
 const User = require('../../models/user.model');
 const path = require('path');
 const Class = require('../../models/class.model');
+const Event = require('../../models/event.model');
 const Survey = require('../../models/survey.model');
+const Discussion = require('../../models/discussion.model');
 const SurveyResponse = require('../../models/surveyResponse.model');
+const mongoose=require('mongoose');
 
 
 exports.getSchools = async (req, res) => {
@@ -1079,6 +1082,52 @@ exports.showEditForm = async (req, res) => {
     }
 }
 
+exports.showInfoSurvey = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const survey = await Survey.findById(id);
+        if (!survey) {
+          return res.status(404).json({ message: 'Опрос не найден' });
+        }
+  
+        var _id = new mongoose.Types.ObjectId(id);
+        const resultsStart = await SurveyResponse.aggregate([
+          { $match: { survey: _id } },
+          { $group: { _id: '$selectedOption', count: { $sum: 1 } } }
+        ]);
+    
+        const results = survey.options.map(option => {
+          const result = resultsStart.find(r => r._id === option.optionId);
+          return {
+            optionId: option.optionId,
+            optionName: option.optionName,
+            votes: result ? result.count : 0
+          };
+        });
+
+        const classes = await Class.find({
+            _id: { $in: survey.classes }
+        });
+
+        const schoolIds = classes.map(c => c.schoolId);
+        const schools = await School.find({
+            _id: { $in: schoolIds }
+        });
+
+        res.render('admin/survey/survey-result', {
+            survey,
+            classes,
+            schools,
+            results,
+            layout: path.join(__dirname, "../../views/layouts/adminSurvey"),
+            footer: true,
+        });
+      } catch (error) {
+        console.error('Error fetching survey results:', error);
+        res.status(500).json({ message: 'Ошибка при получении результатов опроса' });
+      }
+}
+
 exports.updateSurvey = async (req, res) => {
     try {
         const { id } = req.params;
@@ -1129,3 +1178,251 @@ exports.deleteSurvey = async (req, res) => {
         res.status(500).json({ success: false, message: 'Ошибка при удалении опроса' });
     }
 };
+
+
+//events
+
+exports.eventsGet = async (req, res) => {
+    try {
+        const events = await Event.find()
+            .sort({ date: 1 });
+        const schools = await School.find();
+
+        res.render('admin/event/event-list', {
+            events,
+            schools,
+            success: req.flash('success'),
+            error: req.flash('error')
+        });
+    } catch (error) {
+        req.flash('error', 'Ошибка при загрузке событий');
+        res.redirect('/admin/dashboard');
+    }
+}
+
+exports.createEvent = async (req, res) => {
+    
+        try {
+            const schools = await School.find().sort('name');
+            
+            res.render('admin/event/event-create', {
+                schools,
+                success: req.flash('success'),
+                error: req.flash('error')
+            });
+        } catch (error) {
+            req.flash('error', 'Ошибка при загрузке формы');
+            res.redirect('/admin/events');
+        }
+}
+
+exports.createEventPost = async (req, res) => {
+    try {
+        const { title, description, date, schoolId } = req.body;
+
+        const event = new Event({
+            title,
+            description,
+            date,
+            schoolId
+        });
+
+        await event.save();
+
+        req.flash('success', 'Событие успешно создано');
+        res.redirect('/admin/events');
+    } catch (error) {
+        req.flash('error', 'Ошибка при создании события');
+        res.redirect('/admin/events/create');
+    }
+}
+
+exports.editEvent = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) {
+            req.flash('error', 'Событие не найдено');
+            return res.redirect('/admin/events');
+        }
+
+        const schools = await School.find().sort('name');
+        
+        res.render('admin/event/event-edit', {
+            event,
+            schools,
+            success: req.flash('success'),
+            error: req.flash('error')
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        req.flash('error', 'Ошибка при загрузке события');
+        res.redirect('/admin/events');
+    }
+}
+
+exports.editEventPost = async (req, res) => {
+    try {
+        const { title, description, date, schoolId } = req.body;
+        
+        const event = await Event.findByIdAndUpdate(req.params.id, {
+            title,
+            description,
+            date,
+            schoolId
+        });
+
+        if (!event) {
+            req.flash('error', 'Событие не найдено');
+            return res.redirect('/admin/events');
+        }
+
+        req.flash('success', 'Событие успешно обновлено');
+        res.redirect('/admin/events');
+    } catch (error) {
+        console.error('Error:', error);
+        req.flash('error', 'Ошибка при обновлении события');
+        res.redirect(`/admin/events/edit/${req.params.id}`);
+    }
+}
+
+exports.deleteEvent = async (req, res) => {
+    try {
+        const event = await Event.findByIdAndDelete(req.params.id);
+        
+        if (!event) {
+            return res.json({ 
+                success: false, 
+                message: 'Событие не найдено' 
+            });
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Событие успешно удалено' 
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.json({ 
+            success: false, 
+            message: 'Ошибка при удалении события' 
+        });
+    }
+}
+
+exports.createDiscussion = async (req, res) => {
+    try {
+        const schools = await School.find().sort('name');
+        res.render('admin/discussion/discussion-create', {
+            schools,
+            error: req.flash('error')
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        req.flash('error', 'Ошибка при загрузке формы');
+        res.redirect('/admin/discussions');
+    }
+}
+
+exports.createDiscussionPost = async (req, res) => {
+    try {
+        const { title, description, isGlobal, schoolId } = req.body;
+        
+        const discussion = new Discussion({
+            title,
+            description,
+            isGlobal: isGlobal === 'on',
+            schoolId: isGlobal === 'on' ? null : schoolId
+        });
+
+        await discussion.save();
+        req.flash('success', 'Обсуждение успешно создано');
+        res.redirect('/admin/discussions');
+    } catch (error) {
+        console.error('Error:', error);
+        req.flash('error', 'Ошибка при создании обсуждения');
+        res.redirect('/admin/discussions/create');
+    }
+}
+
+exports.discussionList = async (req, res) => {
+    try {
+        const discussions = await Discussion.find()
+            .sort('-createdAt')
+            .lean();
+        
+        const schools = await School.find().lean();
+
+        console.log(`discussions ${discussions}`)
+        res.render('admin/discussion/list', {
+            discussions,
+            schools
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.redirect('/admin/dashboard');
+    }
+}
+
+exports.deleteDiscussion = async (req, res) => {
+    try {
+        const discussionId = req.params.id;
+        const discussion = await Discussion.findByIdAndDelete(discussionId);
+        
+        if (!discussion) {
+            return res.json({ 
+                success: false, 
+                message: 'Обсуждение не найдено' 
+            });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error:', error);
+        res.json({ 
+            success: false, 
+            message: 'Ошибка при удалении обсуждения' 
+        });
+    }
+}
+
+exports.editDiscussion = async (req, res) => {
+    try {
+        const discussion = await Discussion.findById(req.params.id);
+        if (!discussion) {
+            return res.redirect('/admin/discussions');
+        }
+
+        const schools = await School.find().sort('name');
+        
+        res.render('admin/discussion/edit', {
+            discussion,
+            schools
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.redirect('/admin/discussions');
+    }
+}
+
+exports.editDiscussionPost = async (req, res) => {
+    try {
+        const { title, description, isGlobal, schoolId } = req.body;
+        
+        const discussion = await Discussion.findById(req.params.id);
+        if (!discussion) {
+            return res.redirect('/admin/discussions');
+        }
+
+        discussion.title = title;
+        discussion.description = description;
+        discussion.isGlobal = !!isGlobal;
+        discussion.schoolId = isGlobal ? null : schoolId;
+
+        await discussion.save();
+
+        res.redirect('/admin/discussions');
+    } catch (error) {
+        console.error('Error:', error);
+        res.redirect(`/admin/discussions/edit/${req.params.id}`);
+    }
+}

@@ -1,0 +1,59 @@
+<div class="discussion-container"></div>
+    <h1 class="discussion-heading">Редактирование обсуждения</h1>
+
+    <form action="/admin/discussions/edit/<%= discussion._id %>" method="POST" class="discussion-form">
+        <div class="discussion-form-group">
+            <label class="discussion-label">Название:</label>
+            <input 
+                type="text" 
+                name="title" 
+                class="discussion-input" 
+                value="<%= discussion.title %>" 
+                required
+            >
+        </div>
+
+        <div class="discussion-form-group">
+            <label class="discussion-label">Описание:</label>
+            <textarea 
+                name="description" 
+                class="discussion-textarea" 
+                rows="4" 
+                required
+            ><%= discussion.description %></textarea>
+        </div>
+
+        <div class="discussion-form-group">
+            <label class="discussion-label discussion-checkbox-label">
+                <input 
+                    type="checkbox" 
+                    name="isGlobal" 
+                    class="discussion-checkbox" 
+                    id="isGlobalCheckbox"
+                    <%= discussion.isGlobal ? 'checked' : '' %>
+                >
+                Глобальное обсуждение
+            </label>
+        </div>
+
+        <div class="discussion-form-group <%= discussion.isGlobal ? 'hidden' : '' %>" id="schoolSelectGroup">
+            <label class="discussion-label">Школа:</label>
+            <select name="schoolId" class="discussion-select" id="schoolSelect" <%= !discussion.isGlobal ? 'required' : '' %>>
+                <option value="">Выберите школу</option>
+                <% schools.forEach(function(school) { %>
+                    <option 
+                        value="<%= school._id %>" 
+                        <%= discussion.schoolId && school._id.toString() === discussion.schoolId.toString() ? 'selected' : '' %>
+                    >
+                        <%= school.name %>
+                    </option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="discussion-form-actions">
+            <button type="submit" class="discussion-btn discussion-btn-save">Сохранить</button>
+            <a href="/admin/discussions" class="discussion-btn discussion-btn-cancel">Отмена</a>
+        </div>
+    </form>
+</div>

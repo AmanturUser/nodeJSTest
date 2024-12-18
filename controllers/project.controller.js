@@ -12,7 +12,7 @@ async function validateUsers(userIds) {
         const checkUser = await User.findById(_id);
         if (!checkUser) {
           invalidUsers.push(userId);
-        }
+        } 
       } catch (error) {
         console.error(`Error checking user ${userId}:`, error);
         invalidUsers.push(userId);

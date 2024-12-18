@@ -236,7 +236,9 @@ exports.isSuperAdmin = async (req, res, next) => {
 
 exports.isSuperAdminAndSchoolAdmin = async (req, res, next) => {
     try {
+        console.log('hello')
         const user = await User.findById(req.session.userId);
+        console.log(user.role);
         if (user && (user.role === 2 || (user.role===1))) {
             next();
         } else {

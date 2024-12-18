@@ -6,7 +6,7 @@ const eventSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   schoolId: { type: mongoose.Schema.Types.ObjectId, ref: 'School' },
   classIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }], // Изменено на массив
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

@@ -5,6 +5,7 @@ const expressEjsLayouts = require('express-ejs-layouts');
 const connectDb = require('./db.js');
 const PORT = process.env.PORT || 3000;
 const session = require('express-session');
+const flash = require('connect-flash');
 
 connectDb();
 
@@ -30,6 +31,15 @@ app.use(session({
   cookie: {
   }
 }));
+
+app.use(flash());
+
+// Добавляем middleware для передачи flash-сообщений в шаблоны
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+});
 
 const adminRoutes = require('./routes/adminRoutes.js');
 app.use('/admin', adminRoutes);

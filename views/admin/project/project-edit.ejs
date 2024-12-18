@@ -16,7 +16,9 @@
         <div class="form-group">
             <label>Школа:</label>
             <select id="schoolSelect" name="schoolId">
-                <option value="">Все школы</option>
+                <% if (schools.length!=1) { %>
+                    <option value="">Все школы</option>
+                <% } %>
                 <% schools.forEach(function(school) { %>
                     <option value="<%= school._id %>" 
                         <%= project.schoolId && project.schoolId.toString() === school._id.toString() ? 'selected' : '' %>>

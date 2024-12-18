@@ -1,7 +1,7 @@
 
     <div class="auth-container">
         <h1>Введите OTP</h1>
-        <% if (locals.error) { %>
+        <% if (locals.error!="") { %>
             <div class="error"><%= error %></div>
         <% } %>
         <form action="/admin/enter-otp" method="POST">

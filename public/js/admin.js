@@ -629,3 +629,150 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSelectedCount();
     };
 });
+
+function deleteEvent(eventId) {
+    if (confirm('Вы уверены, что хотите удалить это событие?')) {
+        fetch(`/admin/events/delete/${eventId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Ошибка при удалении события');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при удалении события');
+        });
+    }
+}
+
+const EventManager = {
+    deleteEvent: function(eventId) {
+        if (confirm('Вы уверены, что хотите удалить это событие?')) {
+            fetch(`/admin/events/${eventId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Добавляем flash сообщение через localStorage
+                    localStorage.setItem('flashSuccess', 'Событие успешно удалено');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Ошибка при удалении события');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при удалении события');
+            });
+        }
+    },
+
+    validateEventForm: function(form) {
+        const title = form.querySelector('[name="title"]').value;
+        const description = form.querySelector('[name="description"]').value;
+        const date = form.querySelector('[name="date"]').value;
+        const schoolId = form.querySelector('[name="schoolId"]').value;
+
+        if (!title || !description || !date || !schoolId) {
+            alert('Пожалуйста, заполните все поля');
+            return false;
+        }
+
+        // Проверка, что дата не в прошлом
+        if (new Date(date) < new Date()) {
+            alert('Дата события не может быть в прошлом');
+            return false;
+        }
+
+        return true;
+    },
+
+    initEventHandlers: function() {
+        // Проверяем наличие flash сообщения при загрузке страницы
+        const flashSuccess = localStorage.getItem('flashSuccess');
+        if (flashSuccess) {
+            // Показываем сообщение (в зависимости от вашей реализации flash-сообщений)
+            // ...
+            localStorage.removeItem('flashSuccess');
+        }
+
+        const eventForm = document.querySelector('.event-form');
+        if (eventForm) {
+            eventForm.addEventListener('submit', function(e) {
+                if (!EventManager.validateEventForm(this)) {
+                    e.preventDefault();
+                }
+            });
+        }
+    }
+};
+
+// При необходимости инициализируем обработчики
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.querySelector('.event-container')) {
+        EventManager.initEventHandlers();
+    }
+});
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const isGlobalCheckbox = document.getElementById('isGlobalCheckbox');
+    const schoolSelectGroup = document.getElementById('schoolSelectGroup');
+    const schoolSelect = document.getElementById('schoolSelect');
+
+    isGlobalCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            schoolSelectGroup.style.display = 'none';
+            schoolSelect.value = '';
+            schoolSelect.required = false;
+        } else {
+            schoolSelectGroup.style.display = 'block';
+            schoolSelect.required = true;
+        }
+    });
+});
+
+
+const DiscussionManager = {
+    deleteDiscussion: function(id) {
+        if (confirm('Вы уверены, что хотите удалить это обсуждение?')) {
+            fetch(`/admin/discussions/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Ошибка при удалении обсуждения');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const typeFilter = document.getElementById('typeFilter');
+    const discussionCards = document.querySelectorAll('.discussion-card');
+
+    typeFilter.addEventListener('change', function() {
+        const selectedType = this.value;
+        
+        discussionCards.forEach(card => {
+            if (selectedType === 'all' || card.dataset.type === selectedType) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+

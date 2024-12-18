@@ -1,0 +1,57 @@
+<div class="discussion-container">
+    <div class="discussion-header">
+        <h1 class="discussion-heading">Обсуждения</h1>
+        <a href="/admin/discussions/create" class="discussion-btn discussion-btn-create">Создать обсуждение</a>
+    </div>
+
+    <div class="discussion-filters">
+        <select class="discussion-select" id="typeFilter">
+            <option value="all">Все обсуждения</option>
+            <option value="global">Глобальные</option>
+            <option value="school">Школьные</option>
+        </select>
+    </div>
+
+    <div class="discussion-list">
+        <% if (discussions && discussions.length > 0) { %>
+            <% discussions.forEach(function(discussion) { %>
+                <div class="discussion-card" data-type="<%= discussion.isGlobal ? 'global' : 'school' %>">
+                    <div class="discussion-card-header">
+                        <h3 class="discussion-card-title"><%= discussion.title %></h3>
+                        <span class="discussion-badge <%= discussion.isGlobal ? 'global' : 'school' %>">
+                            <%= discussion.isGlobal ? 'Глобальное' : 'Школьное' %>
+                        </span>
+                    </div>
+
+                    <div class="discussion-card-body">
+                        <p class="discussion-description"><%= discussion.description %></p>
+                        <% if (!discussion.isGlobal && discussion.schoolId) { %>
+                            <div class="discussion-school">
+                                Школа: <%= schools.find(s => s._id.toString() === discussion.schoolId.toString())?.name %>
+                            </div>
+                        <% } %>
+                        <div class="discussion-participants">
+                            Участников: <%= discussion.participants ? discussion.participants.length : 0 %>
+                        </div>
+                    </div>
+
+                    <div class="discussion-card-footer">
+                        <div class="discussion-actions">
+                            <a href="/admin/discussions/edit/<%= discussion._id %>" class="discussion-btn discussion-btn-edit">
+                                Редактировать
+                            </a>
+                            <button onclick="DiscussionManager.deleteDiscussion('<%= discussion._id %>')" 
+                                    class="discussion-btn discussion-btn-delete">
+                                Удалить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="discussion-empty">
+                <p>Обсуждений пока нет</p>
+            </div>
+        <% } %>
+    </div>
+</div>

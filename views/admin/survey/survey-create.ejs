@@ -35,7 +35,9 @@
             <div class="form-group">
                 <label>Школа:</label>
                 <select id="schoolFilter" name="schoolFilter">
-                    <option value="">Все школы</option>
+                    <% if (schools.length!=1) { %>
+                        <option value="">Все школы</option>
+                    <% } %>
                     <% if (locals.schools) { %>
                         <% schools.forEach(function(school) { %>
                             <option value="<%= school._id %>">

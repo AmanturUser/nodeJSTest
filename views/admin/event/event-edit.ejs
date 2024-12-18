@@ -1,0 +1,39 @@
+<!-- views/admin/events/edit.ejs -->
+<div class="event-container">
+    <h1 class="event-heading">Редактирование события</h1>
+    <form action="/admin/events/edit/<%= event._id %>" method="POST" class="event-form">
+        <div class="event-form-group">
+            <label class="event-label">Школа:</label>
+            <select name="schoolId" class="event-select" required>
+                <option value="">Выберите школу</option>
+                <% schools.forEach(function(school) { %>
+                    <option value="<%= school._id %>" 
+                        <%= event.schoolId.toString() === school._id.toString() ? 'selected' : '' %>>
+                        <%= school.name %>
+                    </option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="event-form-group">
+            <label class="event-label">Название события:</label>
+            <input type="text" name="title" class="event-input" value="<%= event.title %>" required>
+        </div>
+
+        <div class="event-form-group">
+            <label class="event-label">Описание:</label>
+            <textarea name="description" class="event-textarea" rows="4" required><%= event.description %></textarea>
+        </div>
+
+        <div class="event-form-group">
+            <label class="event-label">Дата события:</label>
+            <input type="datetime-local" name="date" class="event-input" 
+                value="<%= event.date.toISOString().slice(0, 16) %>" required>
+        </div>
+
+        <div class="event-form-actions">
+            <button type="submit" class="event-btn event-btn-save">Сохранить</button>
+            <a href="/admin/events" class="event-btn event-btn-cancel">Отмена</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,37 @@
+<div class="discussion-container"></div>
+    <h1 class="discussion-heading">Создание обсуждения</h1>
+
+    <form action="/admin/discussions/create" method="POST" class="discussion-form">
+        <div class="discussion-form-group">
+            <label class="discussion-label">Название:</label>
+            <input type="text" name="title" class="discussion-input" required>
+        </div>
+
+        <div class="discussion-form-group">
+            <label class="discussion-label">Описание:</label>
+            <textarea name="description" class="discussion-textarea" rows="4" required></textarea>
+        </div>
+
+        <div class="discussion-form-group">
+            <label class="discussion-label discussion-checkbox-label">
+                <input type="checkbox" name="isGlobal" class="discussion-checkbox" id="isGlobalCheckbox">
+                Глобальное обсуждение
+            </label>
+        </div>
+
+        <div class="discussion-form-group" id="schoolSelectGroup">
+            <label class="discussion-label">Школа:</label>
+            <select name="schoolId" class="discussion-select" id="schoolSelect">
+                <option value="">Выберите школу</option>
+                <% schools.forEach(function(school) { %>
+                    <option value="<%= school._id %>"><%= school.name %></option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="discussion-form-actions">
+            <button type="submit" class="discussion-btn discussion-btn-create">Создать</button>
+            <a href="/admin/discussions" class="discussion-btn discussion-btn-cancel">Отмена</a>
+        </div>
+    </form>
+</div>

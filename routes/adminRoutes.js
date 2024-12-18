@@ -65,6 +65,7 @@ router.delete('/surveys/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAn
 router.post('/surveys/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.postCreateSurvey);
 router.get('/admin/surveys/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.showEditForm);
 router.post('/admin/surveys/:id/edit', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.updateSurvey);
+router.get('/surveys/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.showInfoSurvey);
 
 router.get('/schools/:id/pupils', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.getSchoolStudents);
 router.get('/schools/:id/admins', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,schoolController.getSchoolAdmins);
@@ -73,6 +74,22 @@ router.get('/schools/:id/admins', adminAuth.isAuthenticated,adminAuth.isSuperAdm
 // router.get('/create-school-admin', adminController.getCreateSchoolAdmin);
 // router.post('/create-school-admin', adminController.postCreateSchoolAdmin);
 
+//events
+router.get('/events',adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.eventsGet);
+router.get('/events/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.createEvent);
+router.post('/events/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.createEventPost);
+router.delete('/events/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.deleteEvent);
+router.get('/events/edit/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.editEvent);
+router.post('/events/edit/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.editEventPost);
+
+
+//discussions
+router.get('/discussions',adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.discussionList);
+router.get('/discussions/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.createDiscussion);
+router.post('/discussions/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.createDiscussionPost);
+router.delete('/discussions/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,schoolController.deleteDiscussion);
+router.get('/discussions/edit/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.editDiscussion);
+router.post('/discussions/edit/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, schoolController.editDiscussionPost);
 
 //project
 router.get('/projects',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,projectController.getProjectList);

@@ -1041,3 +1041,104 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
+
+        .survey-info {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .survey-main {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .info-group {
+            margin-bottom: 20px;
+        }
+        
+        .info-group label {
+            display: block;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .info-group .content {
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .class-tag {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 2px;
+        }
+        
+        .survey-results {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .result-item {
+            margin-bottom: 15px;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .option-name {
+            font-weight: 500;
+        }
+        
+        .votes-count {
+            color: #666;
+        }
+        
+        .progress-bar {
+            position: relative;
+            height: 24px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: #007bff;
+            transition: width 0.3s ease;
+        }
+        
+        .percentage {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #333;
+            font-size: 14px;
+            z-index: 1;
+        }

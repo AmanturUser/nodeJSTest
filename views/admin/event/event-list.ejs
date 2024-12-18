@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="header">
+        <h1>Календарь событий</h1>
+        <a href="/admin/events/create" class="btn btn-primary">Создать событие</a>
+    </div>
+
+    <div class="events-container">
+        <% events.forEach(function(event) { %>
+            <div class="event-card">
+                <div class="event-date">
+                    <%= new Date(event.date).toLocaleDateString('ru-RU', { 
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    }) %>
+                </div>
+                <div class="event-time">
+                    <%= new Date(event.date).toLocaleTimeString('ru-RU', { 
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) %>
+                </div>
+                <h3 class="event-title"><%= event.title %></h3>
+                <p class="event-description"><%= event.description %></p>
+                <div class="event-school">
+                    <%= schools.find(s => s._id.toString() === event.schoolId.toString())?.name %>
+                </div>
+                <div class="event-actions">
+                    <a href="/admin/events/edit/<%= event._id %>" class="btn btn-edit">Редактировать</a>
+                    <button onclick="EventManager.deleteEvent('<%= event._id %>')" class="event-btn event-btn-delete">Удалить</button>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+</div>

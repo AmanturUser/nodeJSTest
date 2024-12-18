@@ -40,7 +40,7 @@
                     <% surveys.forEach((surveyItem, index) => { %>
                         <tr data-pupil-id="<%= surveyItem._id %>">
                             <td><%= (currentPage - 1) * limit + index + 1 %></td>
-                            <td><%= surveyItem.name %></td>
+                            <td><a href="/admin/surveys/<%= surveyItem._id %>"><%= surveyItem.name %></a></td>
                             <td><%= surveyItem.schoolName %></td>
                             <td><%= surveyItem.surveyResCount %></td>
                             <td>

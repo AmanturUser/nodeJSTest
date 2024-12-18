@@ -1,0 +1,63 @@
+<div class="survey-info"></div>
+    <h1>Информация об опросе</h1>
+
+    <div class="survey-main">
+        <div class="info-group">
+            <label>Название:</label>
+            <div class="content"><%= survey.name %></div>
+        </div>
+
+        <div class="info-group">
+            <label>Описание:</label>
+            <div class="content"><%= survey.description %></div>
+        </div>
+
+        <div class="info-group">
+            <label>Дата создания:</label>
+            <div class="content">
+                <%= new Date(survey.createdAt).toLocaleDateString('ru-RU', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                }) %>
+            </div>
+        </div>
+
+        <div class="info-group">
+            <label>Классы:</label>
+            <div class="content">
+                <% if (classes && classes.length > 0) { %>
+                    <% classes.forEach(function(classItem) { %>
+                        <span class="class-tag">
+                            <%= classItem.name %>
+                            (<%= schools.find(s => s._id.toString() === classItem.schoolId.toString())?.name %>)
+                        </span>
+                    <% }); %>
+                <% } else { %>
+                    <span>Нет выбранных классов</span>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <div class="survey-results">
+        <h2>Результаты опроса</h2>
+        <div class="results-container">
+            <% results.forEach(function(result) { %>
+                <div class="result-item">
+                    <div class="result-header">
+                        <span class="option-name"><%= result.optionName %></span>
+                        <span class="votes-count"><%= result.votes %> голосов</span>
+                    </div>
+                    <div class="progress-bar">
+                        <% const totalVotes = results.reduce((sum, r) => sum + r.votes, 0) %>
+                        <% const percentage = totalVotes > 0 ? (result.votes / totalVotes * 100) : 0 %>
+                        <!-- <div class="progress" style="width: \<\%= percentage \%\>\%"></div> -->
+                        <div class="progress" style="width: '<%= percentage %>%';"></div>
+                        <span class="percentage"><%= percentage.toFixed(1) %>%</span>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+</div>
