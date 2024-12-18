@@ -211,12 +211,27 @@ exports.getEditSchool = async (req, res) => {
             User.countDocuments({ classId: { $in: classIds }, role: 1 })
         ]);
 
-        res.render('admin/edit-school', { 
-            school, 
-            studentCount, 
-            teacherCount,
-            classes
-        });
+        if(req.session.userRole===1){
+            res.render('admin/edit-school', { 
+                school, 
+                studentCount, 
+                teacherCount,
+                classes,
+                layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                footer: true,
+                headerTitle: `Школа`,
+                currentPageTitle: 'home',
+                schoolId: req.session.schoolId
+            });
+        }else{
+            res.render('admin/edit-school', { 
+                school, 
+                studentCount, 
+                teacherCount,
+                classes
+            });
+        }
+        
     } catch (error) {
         console.error('Error fetching school for edit:', error);
         res.status(500).render('error', { message: 'Ошибка при загрузке данных школы' });

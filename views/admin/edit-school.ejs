@@ -29,7 +29,12 @@
             
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                <a href="/admin/schools" class="btn btn-secondary">Отмена</a>
+                <% if (!schoolId) { %>
+                    <a href="/admin/schools" class="btn btn-secondary">Отмена</a>
+                <% } %>
+                <% if (schoolId) { %>
+                    <a href="/admin/dashboard" class="btn btn-secondary">Отмена</a>
+                <% } %>
             </div>
         </form>
     </main>
