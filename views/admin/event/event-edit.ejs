@@ -5,7 +5,9 @@
         <div class="event-form-group">
             <label class="event-label">Школа:</label>
             <select name="schoolId" class="event-select" required>
-                <option value="">Выберите школу</option>
+                <% if (schools.length!=1) { %>
+                    <option value="">Выберите школу</option>
+                <% } %>
                 <% schools.forEach(function(school) { %>
                     <option value="<%= school._id %>" 
                         <%= event.schoolId.toString() === school._id.toString() ? 'selected' : '' %>>

@@ -19,7 +19,7 @@ exports.getDashboard = async (req, res) => {
 
             const [studentCount, teacherCount] = await Promise.all([
                 User.countDocuments({ classId: { $in: classIds }, role: 0 }),
-                User.countDocuments({ classId: { $in: classIds }, role: 1 })
+                User.countDocuments({ schoolId: schoolId, role: 1 })
             ]);
 
         // Получаем список администраторов школы

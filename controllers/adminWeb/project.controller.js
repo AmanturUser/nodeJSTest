@@ -69,7 +69,7 @@ exports.getProjectList = async (req,res,next) => {
 
         const projectsWithStats = await Promise.all(projects.map(async (projectItem) => {
             var school=await School.findById(projectItem.schoolId).select('name');
-            const schoolName = school ? school.name : 'Неизвестная школа';
+            const schoolName = school ? school.name : 'Из разных школ';
             const inProjectUserCount=projectItem.users.length;
             return {
                 ...projectItem,
@@ -210,14 +210,34 @@ exports.updateProject = async (req, res) => {
 
 exports.createProject = async (req, res) => {
     try {
-        const schools = await School.find().lean();
-        const classes = await Class.find().lean();
-        const users = await User.find({ role: 0 }).sort('name');
-        res.render('admin/project/project-create', { 
-            schools,
-            classes,
-            users
-        });
+        if(req.session.userRole===1){
+            var schools = await School.findById(req.session.schoolId).sort('name');
+            var classes = await Class.find({schoolId: req.session.schoolId}).sort('name');
+            var users = await User.find({ role: 0, schoolId: req.session.schoolId})
+                .sort('name');
+            
+            schools=[schools];
+
+            res.render('admin/project/project-create', { 
+                    schools,
+                    classes,
+                    users,
+                    layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                    headerTitle: `Проекты`,
+                    currentPageTitle: 'projects',
+                    schoolId: req.session.schoolId
+                });
+        }else{
+            const schools = await School.find().lean();
+            const classes = await Class.find().lean();
+            const users = await User.find({ role: 0 }).sort('name');
+            res.render('admin/project/project-create', { 
+                schools,
+                classes,
+                users
+            });
+        }
+        
     } catch (error) {
         console.error('Error loading project create page:', error);
         res.status(500).send('Ошибка при загрузке страницы создание проекта');
@@ -236,8 +256,13 @@ exports.postCreateProject = async (req,res,next) => {
               invalidUsers 
             });
           }
-
-        let newProject = await ProjectServices.createProject(name, description, userIds);
+          let newProject;
+          if(req.session.userRole===1){
+            newProject = await ProjectServices.createProject(name, description, userIds, req.session.schoolId);
+          }else{
+            newProject = await ProjectServices.createProject(name, description, userIds);
+          }
+          
 
         await User.updateMany(
             { _id: { $in: userIds } },

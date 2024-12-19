@@ -76,6 +76,29 @@ async function getFcmTokensBySchool(schoolId) {
 
 exports.getCreateNotification = async (req, res) => {
     try {
+      if(req.session.userRole===1){
+        console.log(`userRole is ${req.session.userRole}`);
+        var schools = await School.findById(req.session.schoolId);
+        schools=[schools];
+        console.log(`schools is ${schools}`);
+        var classes = await Class.find({schoolId: req.session.schoolId});
+        console.log(`classes is ${classes}`);
+        var users = await User.find({role : 0,surname: { $exists: true, $ne: '' }, fcmToken: { $exists: true, $ne: '' }});
+        console.log(`user is ${users}`);
+
+        res.render('admin/notification/createNotification', {
+            schools,
+            classes,
+            users,
+            layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+            footer: true,
+            headerTitle: `Уведомления`,
+            currentPageTitle: 'notification',
+            title: `Уведомления`,
+            schoolId: req.session.schoolId
+        });
+      }else{
+        console.log(`userRole2 is ${req.session.userRole}`);
         const schools = await School.find();
         const classes = await Class.find();
         const users = await User.find({role : 0,surname: { $exists: true, $ne: '' }, fcmToken: { $exists: true, $ne: '' }});
@@ -85,6 +108,8 @@ exports.getCreateNotification = async (req, res) => {
             classes,
             users
         });
+      }
+        
     } catch (error) {
         res.render('admin/notification/createNotification', { 
             error: 'Failed to load data' 

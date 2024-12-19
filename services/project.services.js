@@ -3,8 +3,14 @@ const mongoose=require('mongoose');
 const User = require("../models/user.model");
 
 class ProjectServices{
-    static async createProject(name,description,userIds){
-        const createProject = new ProjectModel({name,description,users:userIds});
+    static async createProject(name,description,userIds, schoolId){
+        var createProject;
+        if(schoolId){
+            createProject = new ProjectModel({name,description,users:userIds,schooldId:schooldId});
+        }else{
+            createProject = new ProjectModel({name,description,users:userIds});
+        }
+        
         // for (const userId of userIds){
         //     const _id = new mongoose.Types.ObjectId(userId);
         //     const user = await User.findById(_id);

@@ -1199,16 +1199,36 @@ exports.deleteSurvey = async (req, res) => {
 
 exports.eventsGet = async (req, res) => {
     try {
-        const events = await Event.find()
+        if(req.session.userRole===1){
+            const events = await Event.find({schoolId: req.session.schoolId})
             .sort({ date: 1 });
-        const schools = await School.find();
+            var schools = await School.findById(req.session.schoolId);
+            schools=[schools]
+            res.render('admin/event/event-list', {
+                events,
+                schools,
+                success: req.flash('success'),
+                error: req.flash('error'),
+                layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                footer: true,
+                headerTitle: `События`,
+                currentPageTitle: 'events',
+                title: `События`,
+                schoolId: req.session.schoolId
+            });
+        }else{
+            const events = await Event.find()
+            .sort({ date: 1 });
+            const schools = await School.find();
 
-        res.render('admin/event/event-list', {
-            events,
-            schools,
-            success: req.flash('success'),
-            error: req.flash('error')
-        });
+            res.render('admin/event/event-list', {
+                events,
+                schools,
+                success: req.flash('success'),
+                error: req.flash('error')
+            });
+        }
+        
     } catch (error) {
         req.flash('error', 'Ошибка при загрузке событий');
         res.redirect('/admin/dashboard');
@@ -1218,13 +1238,30 @@ exports.eventsGet = async (req, res) => {
 exports.createEvent = async (req, res) => {
     
         try {
-            const schools = await School.find().sort('name');
+            if(req.session.userRole===1){
+                var schools = await School.findById(req.session.schoolId);
+                schools=[schools]
+                res.render('admin/event/event-create', {
+                    schools,
+                    success: req.flash('success'),
+                    error: req.flash('error'),
+                    layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                    footer: true,
+                    headerTitle: `События`,
+                    currentPageTitle: 'events',
+                    title: `События`,
+                    schoolId: req.session.schoolId
+                });
+            }else{
+                const schools = await School.find().sort('name');
             
-            res.render('admin/event/event-create', {
-                schools,
-                success: req.flash('success'),
-                error: req.flash('error')
-            });
+                res.render('admin/event/event-create', {
+                    schools,
+                    success: req.flash('success'),
+                    error: req.flash('error')
+                });
+            }
+            
         } catch (error) {
             req.flash('error', 'Ошибка при загрузке формы');
             res.redirect('/admin/events');
@@ -1254,20 +1291,44 @@ exports.createEventPost = async (req, res) => {
 
 exports.editEvent = async (req, res) => {
     try {
-        const event = await Event.findById(req.params.id);
-        if (!event) {
-            req.flash('error', 'Событие не найдено');
-            return res.redirect('/admin/events');
+        if(req.session.userRole===1){
+            const event = await Event.findById(req.params.id);
+            if (!event) {
+                req.flash('error', 'Событие не найдено');
+                return res.redirect('/admin/events');
+            }
+            var schools = await School.findById(req.session.schoolId);
+            schools=[schools]
+            res.render('admin/event/event-edit', {
+                event,
+                schools,
+                success: req.flash('success'),
+                error: req.flash('error'),
+                layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                footer: true,
+                headerTitle: `События`,
+                currentPageTitle: 'events',
+                title: `События`,
+                schoolId: req.session.schoolId
+            });
         }
-
-        const schools = await School.find().sort('name');
-        
-        res.render('admin/event/event-edit', {
-            event,
-            schools,
-            success: req.flash('success'),
-            error: req.flash('error')
-        });
+        else{
+            const event = await Event.findById(req.params.id);
+            if (!event) {
+                req.flash('error', 'Событие не найдено');
+                return res.redirect('/admin/events');
+            }
+    
+    
+            const schools = await School.find().sort('name');
+            
+            res.render('admin/event/event-edit', {
+                event,
+                schools,
+                success: req.flash('success'),
+                error: req.flash('error')
+            });
+        }
     } catch (error) {
         console.error('Error:', error);
         req.flash('error', 'Ошибка при загрузке события');
@@ -1326,11 +1387,27 @@ exports.deleteEvent = async (req, res) => {
 
 exports.createDiscussion = async (req, res) => {
     try {
-        const schools = await School.find().sort('name');
-        res.render('admin/discussion/discussion-create', {
-            schools,
-            error: req.flash('error')
-        });
+        if(req.session.userRole===1){
+        
+            var schools = await School.findById(req.session.schoolId);
+            schools=[schools];
+            res.render('admin/discussion/discussion-create', {
+                schools,
+                layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                footer: true,
+                headerTitle: `Обсуждения`,
+                currentPageTitle: 'discussions',
+                title: `Обсуждения`,
+                schoolId: req.session.schoolId
+            });
+        }else{
+            const schools = await School.find().sort('name');
+            res.render('admin/discussion/discussion-create', {
+                schools,
+                error: req.flash('error')
+            });
+        }
+        
     } catch (error) {
         console.error('Error:', error);
         req.flash('error', 'Ошибка при загрузке формы');
@@ -1361,17 +1438,42 @@ exports.createDiscussionPost = async (req, res) => {
 
 exports.discussionList = async (req, res) => {
     try {
-        const discussions = await Discussion.find()
+        if(req.session.userRole===1){
+            const discussions = await Discussion.find({
+                $or: [
+                    { isGlobal: true },
+                    { schoolId: req.session.schoolId }
+                ]
+            }).lean();
+        
+            var schools = await School.findById(req.session.schoolId);
+            schools=[schools];
+
+            console.log(`discussions ${discussions}`)
+            res.render('admin/discussion/list', {
+                discussions,
+                schools,
+                layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                footer: true,
+                headerTitle: `Обсуждения`,
+                currentPageTitle: 'discussions',
+                title: `Обсуждения`,
+                schoolId: req.session.schoolId
+            });
+        }else{
+            const discussions = await Discussion.find()
             .sort('-createdAt')
             .lean();
         
-        const schools = await School.find().lean();
+            const schools = await School.find().lean();
 
-        console.log(`discussions ${discussions}`)
-        res.render('admin/discussion/list', {
-            discussions,
-            schools
-        });
+            console.log(`discussions ${discussions}`)
+            res.render('admin/discussion/list', {
+                discussions,
+                schools
+            });
+        }
+        
     } catch (error) {
         console.error('Error:', error);
         res.redirect('/admin/dashboard');
@@ -1407,12 +1509,29 @@ exports.editDiscussion = async (req, res) => {
             return res.redirect('/admin/discussions');
         }
 
-        const schools = await School.find().sort('name');
+        if(req.session.userRole===1){
+            var schools = await School.findById(req.session.schoolId);
+            schools=[schools];
+            res.render('admin/discussion/edit', {
+                discussion,
+                schools,
+                layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+                footer: true,
+                headerTitle: `Обсуждения`,
+                currentPageTitle: 'discussions',
+                title: `Обсуждения`,
+                schoolId: req.session.schoolId
+            });
+        }else{
+            const schools = await School.find().sort('name');
         
-        res.render('admin/discussion/edit', {
-            discussion,
-            schools
-        });
+            res.render('admin/discussion/edit', {
+                discussion,
+                schools
+            });
+        }
+
+        
     } catch (error) {
         console.error('Error:', error);
         res.redirect('/admin/discussions');

@@ -39,14 +39,11 @@
         <div class="discussion-form-group <%= discussion.isGlobal ? 'hidden' : '' %>" id="schoolSelectGroup">
             <label class="discussion-label">Школа:</label>
             <select name="schoolId" class="discussion-select" id="schoolSelect" <%= !discussion.isGlobal ? 'required' : '' %>>
-                <option value="">Выберите школу</option>
+                <% if (schools.length!=1) { %>
+                    <option value="">Выберите школу</option>
+                <% } %>
                 <% schools.forEach(function(school) { %>
-                    <option 
-                        value="<%= school._id %>" 
-                        <%= discussion.schoolId && school._id.toString() === discussion.schoolId.toString() ? 'selected' : '' %>
-                    >
-                        <%= school.name %>
-                    </option>
+                    <option value="<%= school._id %>"><%= school.name %></option>
                 <% }); %>
             </select>
         </div>
