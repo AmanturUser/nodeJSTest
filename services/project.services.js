@@ -6,7 +6,7 @@ class ProjectServices{
     static async createProject(name,description,userIds, schoolId){
         var createProject;
         if(schoolId){
-            createProject = new ProjectModel({name,description,users:userIds,schooldId:schooldId});
+            createProject = new ProjectModel({name,description,users:userIds,schoolId: schoolId});
         }else{
             createProject = new ProjectModel({name,description,users:userIds});
         }
