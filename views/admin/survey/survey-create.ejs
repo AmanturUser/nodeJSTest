@@ -8,7 +8,7 @@
         <h1>Создание опроса</h1>
         
         <form action="/admin/surveys/create" method="POST">
-            <% if (locals.error) { %>
+            <% if (locals.error!='') { %>
                 <div class="error"><%= error %></div>
             <% } %>
             <div class="survey-form">
