@@ -5,6 +5,8 @@ const Notification = require("../../models/notification.model");
 const fcmService = require('../../firebase');
 const mongoose=require('mongoose');
 const authMiddleware = require('../../middlewares/authMiddleware');
+const path = require('path');
+const { read } = require('fs');
 
 async function getFcmTokensBySchool(schoolId) {
     try {
@@ -83,7 +85,7 @@ exports.getCreateNotification = async (req, res) => {
         console.log(`schools is ${schools}`);
         var classes = await Class.find({schoolId: req.session.schoolId});
         console.log(`classes is ${classes}`);
-        var users = await User.find({role : 0,surname: { $exists: true, $ne: '' }, fcmToken: { $exists: true, $ne: '' }});
+        var users = await User.find({role : 0,surname: { $exists: true, $ne: '' }, fcmToken: { $exists: true, $ne: '' }, schoolId: req.session.schoolId});
         console.log(`user is ${users}`);
 
         res.render('admin/notification/createNotification', {
