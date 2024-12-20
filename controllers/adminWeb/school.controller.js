@@ -252,7 +252,12 @@ exports.postEditSchool = async (req, res) => {
 
         await school.save();
 
-        res.redirect('/admin/schools');
+        if(req.session.userRole===1){
+            res.redirect('/admin/dashboard');    
+        }else{
+            res.redirect('/admin/schools');
+        }
+        
     } catch (error) {
         console.error('Error updating school:', error);
         res.status(500).render('error', { message: 'Ошибка при обновлении школы' });
@@ -893,13 +898,14 @@ exports.getSurveys = async (req, res) => {
         let surveysQuery;
         
         if(req.session.userRole===1){
-            const schoolClasses = await Class.find({ schoolId: req.session.schoolId }, '_id');
+            const schoolClasses = await Class.find({ schoolId: req.session.schoolId });
             const classIds = schoolClasses.map(cls => cls._id);
 
             // Теперь ищем опросы, где хотя бы один класс из массива classIds есть в массиве classes
             surveysQuery = Survey.find({
                 name: searchRegex,
-                classes: { $in: classIds }  // или classIds если у вас поле называется classIds
+                // classes: { $in: classIds }  // или classIds если у вас поле называется classIds
+                schoolId: req.session.schoolId
             }).skip(skip)
             .limit(limit)
             .lean();
@@ -1036,7 +1042,6 @@ exports.postCreateSurvey = async (req, res) => {
           ...option,
           optionId: index + 1
         }));
-    
         const survey = new Survey({
           name,
           description,
