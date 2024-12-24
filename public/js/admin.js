@@ -841,3 +841,62 @@ document.addEventListener('DOMContentLoaded', function() {
         NotificationManager.init();
     }
 });
+
+
+// headerMenu
+const HeaderManager = {
+    init: function() {
+        // Проверяем наличие элементов хедера
+        const mainNav = document.querySelector('.main-nav');
+        const menuToggle = document.querySelector('.menu-toggle');
+        
+        if (!mainNav || !menuToggle) return;
+
+        // Добавляем обработчики событий
+        this.initMenuToggle(menuToggle, mainNav);
+        this.initClickOutside(mainNav, menuToggle);
+        this.initResizeHandler(mainNav);
+    },
+
+    initMenuToggle: function(menuToggle, mainNav) {
+        menuToggle.addEventListener('click', function() {
+            mainNav.classList.toggle('active');
+        });
+    },
+
+    initClickOutside: function(mainNav, menuToggle) {
+        document.addEventListener('click', function(e) {
+            if (!mainNav.contains(e.target) && 
+                !menuToggle.contains(e.target) && 
+                mainNav.classList.contains('active')) {
+                mainNav.classList.remove('active');
+            }
+        });
+    },
+
+    initResizeHandler: function(mainNav) {
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 1024) {
+                mainNav.classList.remove('active');
+            }
+        });
+    },
+
+    // Дополнительные методы при необходимости
+    closeMenu: function() {
+        const mainNav = document.querySelector('.main-nav');
+        if (mainNav) {
+            mainNav.classList.remove('active');
+        }
+    },
+
+    isMenuOpen: function() {
+        const mainNav = document.querySelector('.main-nav');
+        return mainNav ? mainNav.classList.contains('active') : false;
+    }
+};
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    HeaderManager.init();
+});
