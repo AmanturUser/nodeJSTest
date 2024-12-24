@@ -776,3 +776,68 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
+
+//notification
+// В глобальном файле admin.js
+const NotificationManager = {
+    init: function() {
+        const typeSelect = document.getElementById('notificationType');
+        if (!typeSelect) return; // Проверяем, что мы на странице уведомлений
+
+        const schoolSelect = document.querySelector('.school-select');
+        const classSelect = document.querySelector('.class-select');
+        const userSelect = document.querySelector('.user-select');
+
+        if (schoolSelect && classSelect && userSelect) {
+            this.initializeSelects(typeSelect, schoolSelect, classSelect, userSelect);
+        }
+    },
+
+    initializeSelects: function(typeSelect, schoolSelect, classSelect, userSelect) {
+        typeSelect.addEventListener('change', function() {
+            // Скрываем все селекты
+            this.hideAllSelects(schoolSelect, classSelect, userSelect);
+            
+            // Показываем нужный селект
+            switch(typeSelect.value) {
+                case 'SCHOOL':
+                    this.showSelect(schoolSelect);
+                    break;
+                case 'CLASS':
+                    this.showSelect(classSelect);
+                    break;
+                case 'USER':
+                    this.showSelect(userSelect);
+                    break;
+            }
+        }.bind(this));
+    },
+
+    hideAllSelects: function(schoolSelect, classSelect, userSelect) {
+        // Скрываем все селекты и убираем required
+        [schoolSelect, classSelect, userSelect].forEach(select => {
+            select.style.display = 'none';
+            const selectElement = select.querySelector('select');
+            if (selectElement) {
+                selectElement.required = false;
+            }
+        });
+    },
+
+    showSelect: function(selectContainer) {
+        selectContainer.style.display = 'block';
+        const selectElement = selectContainer.querySelector('select');
+        if (selectElement) {
+            selectElement.required = true;
+        }
+    }
+};
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем, что мы на странице уведомлений
+    if (document.querySelector('.notification-form')) {
+        NotificationManager.init();
+    }
+});
