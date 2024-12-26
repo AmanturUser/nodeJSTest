@@ -1,0 +1,79 @@
+<div class="notification-list-container"></div>
+    <div class="notification-header">
+        <h1>Список уведомлений</h1>
+        <a href="/admin/notification/create" class="btn btn-create">Создать уведомление</a>
+    </div>
+
+    <div class="notification-list">
+        <% if (notifications && notifications.length > 0) { %>
+            <% notifications.forEach(function(notification) { %>
+                <div class="notification-card">
+                    <div class="notification-type">
+                        <span class="badge <%= notification.type.toLowerCase() %>">
+                            <%= notification.type === 'SCHOOL' ? 'Школа' : 
+                               notification.type === 'CLASS' ? 'Класс' : 'Пользователь' %>
+                        </span>
+                    </div>
+                    
+                    <div class="notification-content">
+                        <h3 class="notification-title"><%= notification.title %></h3>
+                        <p class="notification-body"><%= notification.body %></p>
+                        
+                        <div class="notification-info">
+                            <% if (notification.type === 'SCHOOL') { %>
+                                <span>Школа: <%= schools.find(s => s._id.toString() === notification.schoolId?.toString())?.name || 'Неизвестно' %></span>
+                            <% } else if (notification.type === 'CLASS') { %>
+                                <span>Класс: <%= classes.find(c => c._id.toString() === notification.classId?.toString())?.name || 'Неизвестно' %></span>
+                            <% } else if (notification.type === 'USER') { %>
+                                <span>Пользователь: <%= users.find(u => u._id.toString() === notification.userId?.toString())?.name || 'Неизвестно' %></span>
+                            <% } %>
+                            
+                            <span class="notification-date">
+                                <%= new Date(notification.createdAt).toLocaleString('ru-RU', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="notification-actions">
+                        <button onclick="NotificationManager.deleteNotification('<%= notification._id %>')" class="btn btn-deleteNotification">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="no-notifications">
+                <p>Уведомлений пока нет</p>
+            </div>
+        <% } %>
+    </div>
+
+    <% if (totalPages > 1) { %>
+        <div class="pagination">
+            <% if (hasPrevPage) { %>
+                <a href="?page=<%= currentPage - 1 %>" class="pagination-btn">
+                    Предыдущая
+                </a>
+            <% } %>
+    
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>" 
+                   class="pagination-btn <%= currentPage === i ? 'active' : '' %>">
+                    <%= i %>
+                </a>
+            <% } %>
+    
+            <% if (hasNextPage) { %>
+                <a href="?page=<%= currentPage + 1 %>" class="pagination-btn">
+                    Следующая
+                </a>
+            <% } %>
+        </div>
+    <% } %>
+</div>

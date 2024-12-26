@@ -298,30 +298,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработка формы редактирования школы
     
 
-    function updatePagination() {
-        const paginationContainer = document.querySelector('.pagination');
-        if (paginationContainer) {
-            const currentPage = parseInt(paginationContainer.dataset.currentPage) || 1;
-            const totalPages = parseInt(paginationContainer.dataset.totalPages) || 1;
-            
-            let paginationHTML = '';
-            
-            if (currentPage > 1) {
-                paginationHTML += `<a href="?page=${currentPage - 1}" class="btn btn-primary">Предыдущая</a>`;
-            }
-            
-            paginationHTML += `<span class="page-info">Страница ${currentPage} из ${totalPages}</span>`;
-            
-            if (currentPage < totalPages) {
-                paginationHTML += `<a href="?page=${currentPage + 1}" class="btn btn-primary">Следующая</a>`;
-            }
-            
-            paginationContainer.innerHTML = paginationHTML;
-        }
-    }
+    
 
     // Вызов функции обновления пагинации при загрузке страницы
-    updatePagination();
+
 
     // Дополнительные функции админ-панели могут быть добавлены здесь
     
@@ -831,6 +811,45 @@ const NotificationManager = {
         if (selectElement) {
             selectElement.required = true;
         }
+    },
+
+    deleteNotification: function(id) {
+        if (confirm('Вы уверены, что хотите удалить это уведомление?')) {
+            fetch(`/admin/notification/delete/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Ошибка при удалении уведомления');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при удалении уведомления');
+            });
+        }
+    },
+
+    // Методы для пагинации
+    initPagination: function() {
+        const paginationContainer = document.querySelector('.pagination');
+        if (!paginationContainer) return;
+
+        paginationContainer.addEventListener('click', function(e) {
+            e.preventDefault();
+            const link = e.target.closest('a');
+            if (!link) return;
+
+            const page = new URL(link.href).searchParams.get('page');
+            NotificationManager.loadPage(page);
+        });
+    },
+
+    loadPage: function(page) {
+        window.location.href = `/admin/notification?page=${page}`;
     }
 };
 

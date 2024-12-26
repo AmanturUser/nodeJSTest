@@ -12,7 +12,7 @@ const mongoose=require('mongoose');
 exports.getSchools = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 50; // Количество школ на странице
+        const limit = 1000; // Количество школ на странице
         const skip = (page - 1) * limit;
 
         const searchQuery = req.query.search || '';
@@ -308,7 +308,7 @@ exports.deleteClass = async (req, res) => {
 exports.getSchoolClasses = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 50; // Количество классов на странице
+        const limit = 1000; // Количество классов на странице
         const skip = (page - 1) * limit;
 
         const searchQuery = req.query.search || '';
@@ -421,7 +421,7 @@ exports.getSchoolClasses = async (req, res) => {
 exports.getClassesList = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 50; // Количество классов на странице
+        const limit = 1000; // Количество классов на странице
         const skip = (page - 1) * limit;
 
         const searchQuery = req.query.search || '';
@@ -636,7 +636,7 @@ exports.getSchoolAdmins = async (req, res) => {
 exports.getAdmins = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 50; // Количество классов на странице
+        const limit = 1000; // Количество классов на странице
         const skip = (page - 1) * limit;
 
         const searchQuery = req.query.search || '';
@@ -682,7 +682,7 @@ exports.getAdmins = async (req, res) => {
 exports.getPupils = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 50; // Количество классов на странице
+        const limit = 1000; // Количество классов на странице
         const skip = (page - 1) * limit;
 
         const searchQuery = req.query.search || '';
@@ -889,7 +889,7 @@ exports.deleteAdmin = async (req, res) => {
 exports.getSurveys = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 50; // Количество опросов на странице
+        const limit = 1000; // Количество опросов на странице
         const skip = (page - 1) * limit;
 
         const searchQuery = req.query.search || '';

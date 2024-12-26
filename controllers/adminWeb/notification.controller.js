@@ -119,6 +119,132 @@ exports.getCreateNotification = async (req, res) => {
     // res.render('admin/notification/createNotification');
 }}
 
+// Вспомогательные функции
+async function getSchoolClassIds(schoolId) {
+  const classes = await Class.find({ schoolId }).select('_id');
+  return classes.map(c => c._id);
+}
+
+async function getSchoolUserIds(schoolId) {
+  const users = await User.find({ schoolId }).select('_id');
+  return users.map(u => u._id);
+}
+
+exports.getNotifications = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10; // количество элементов на странице
+    const skip = (page - 1) * limit;
+
+    if(req.session.userRole===1){
+      const schoolId = req.session.schoolId; // ID школы из сессии
+
+        // Формируем условие поиска для уведомлений школы
+        const query = {
+            $or: [
+                { type: 'SCHOOL', schoolId: schoolId },
+                { type: 'CLASS', classId: { $in: await getSchoolClassIds(schoolId) } },
+                { type: 'USER', userId: { $in: await getSchoolUserIds(schoolId) } }
+            ]
+        };
+
+        // Получаем общее количество уведомлений для школы
+        const totalNotifications = await Notification.countDocuments(query);
+        const totalPages = Math.ceil(totalNotifications / limit);
+
+        // Получаем уведомления для текущей страницы
+        const notifications = await Notification.find(query)
+            .sort('-createdAt')
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        // Получаем связанные данные
+        const classes = await Class.find({ schoolId }).lean();
+        const users = await User.find({ schoolId }).lean();
+        var schools = await School.findById(schoolId).lean();
+        schools = [schools];
+
+        res.render('admin/notification/list', {
+            notifications,
+            schools,
+            classes,
+            users,
+            currentPage: page,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+            layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
+            footer: true,
+            headerTitle: 'Уведомления',
+            currentPageTitle: 'notification'
+        });
+    }else{
+      const totalNotifications = await Notification.countDocuments();
+      const totalPages = Math.ceil(totalNotifications / limit);
+  
+      console.log(`total page is ${totalPages}`);
+  
+      // Получаем уведомления для текущей страницы
+      const notifications = await Notification.find()
+          .sort('-createdAt')
+          .skip(skip)
+          .limit(limit)
+          .lean();
+  
+      const schools = await School.find().lean();
+      const classes = await Class.find().lean();
+      const users = await User.find({role : 0}).lean();
+  
+      res.render('admin/notification/list', {
+          notifications,
+          schools,
+          classes,
+          users,
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+      });
+    }
+    // Получаем общее количество уведомлений
+    
+} catch (error) {
+    console.error('Error:', error);
+    res.render('admin/notification/list', {
+        error: 'Ошибка при загрузке уведомлений'
+    });
+}
+}
+
+exports.deleteNotification = async (req, res) => {
+  try {
+    const notificationId = req.params.id;
+    
+    // Найти и удалить уведомление
+    const notification = await Notification.findByIdAndDelete(notificationId);
+    
+    if (!notification) {
+        return res.json({ 
+            success: false, 
+            message: 'Уведомление не найдено' 
+        });
+    }
+
+    res.json({ 
+        success: true, 
+        message: 'Уведомление успешно удалено' 
+    });
+
+} catch (error) {
+    console.error('Error deleting notification:', error);
+    res.json({ 
+        success: false, 
+        message: 'Ошибка при удалении уведомления' 
+    });
+}
+}
+
 
 exports.postCreateNotification = async (req, res) => {
     const { type, title, body, data, schoolId, classId, userId } = req.body;

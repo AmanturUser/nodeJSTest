@@ -11,8 +11,12 @@
 </head>
 <body>
     <header class="site-header">
-        <nav>
-            <ul>
+        <div class="nav-container">
+            <button class="menu-toggle" aria-label="Открыть меню">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav class="main-nav">
+                <ul>
                 <li class="<%= currentPageTitle === 'home' ? 'active' : '' %>"><a href="/admin/dashboard">Главная</a></li>
                 <li class="<%= currentPageTitle === 'classes' ? 'active' : '' %>"><a href="/admin/classes">Классы</a></li>
                 <li class="<%= currentPageTitle === 'pupils' ? 'active' : '' %>"><a href="/admin/pupils">Ученики</a></li>
@@ -25,10 +29,11 @@
                 <!-- Добавьте другие пункты меню по необходимости -->
             </ul>
         </nav>
-        <div class="logout-button"></div>
+        <div class="logout-button">
             <a href="/admin/logout" class="btn-logout" onclick="return confirm('Вы уверены, что хотите выйти?');">
                 <i class="fas fa-sign-out-alt"></i> Выйти
             </a>
         </div>
-    </header>
-    <main>
+    </div>
+</header>
+<main>

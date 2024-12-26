@@ -100,8 +100,10 @@ router.get('/projects/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminA
 router.post('/projects/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,projectController.postCreateProject);
 
 //notification
-router.get('/notification',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,notificationController.getCreateNotification);
-router.post('/notification', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,notificationController.postCreateNotification);
+router.get('/notification',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,notificationController.getNotifications);
+router.get('/notification/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,notificationController.getCreateNotification);
+router.post('/notification/create', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,notificationController.postCreateNotification);
+router.delete('/notification/delete/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,notificationController.deleteNotification);
 
 // Загрузка классов школы
 router.get('/api/schools/:schoolId/classes', async (req, res) => {
