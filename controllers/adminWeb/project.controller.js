@@ -32,7 +32,7 @@ exports.getProjectList = async (req,res,next) => {
     try {
 
         const page = parseInt(req.query.page) || 1;
-        const limit = 50; // Количество опросов на странице
+        const limit = 1000; // Количество опросов на странице
         const skip = (page - 1) * limit;
 
         const searchQuery = req.query.search || '';

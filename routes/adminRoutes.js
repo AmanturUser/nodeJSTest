@@ -102,7 +102,7 @@ router.post('/projects/create',adminAuth.isAuthenticated, adminAuth.isSuperAdmin
 //notification
 router.get('/notification',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,notificationController.getNotifications);
 router.get('/notification/create',adminAuth.isAuthenticated, adminAuth.isSuperAdminAndSchoolAdmin,notificationController.getCreateNotification);
-router.post('/notification/create', adminAuth.isAuthenticated,adminAuth.isSuperAdmin,notificationController.postCreateNotification);
+router.post('/notification/create', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,notificationController.postCreateNotification);
 router.delete('/notification/delete/:id', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin,notificationController.deleteNotification);
 
 // Загрузка классов школы
