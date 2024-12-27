@@ -228,7 +228,8 @@ exports.getEditSchool = async (req, res) => {
                 school, 
                 studentCount, 
                 teacherCount,
-                classes
+                classes,
+                schoolId : null
             });
         }
         
