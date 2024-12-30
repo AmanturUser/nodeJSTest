@@ -86,7 +86,7 @@ class NotificationService {
     }
     return Notification.find({
       $or: [
-        { type: 'ALL', createdAt: { $gte: user.createdAt } },
+        { type: 'ALL'},
         { type: 'SCHOOL', schoolId: user.schoolId },
         { type: 'CLASS', schoolId: user.schoolId, classId: user.classId },
         { type: 'SPECIFIC_USERS', recipients: userId }
