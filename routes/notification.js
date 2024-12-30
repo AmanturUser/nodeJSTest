@@ -124,6 +124,9 @@ router.post('/send', async (req, res) => {
 async function getUserNotificationsWithPagination(user, page = 1, limit = 20) {
     try {
   
+
+      var total;
+      var notifications;
       const conditions = [
         { 
           type: 'USER',
@@ -140,18 +143,35 @@ async function getUserNotificationsWithPagination(user, page = 1, limit = 20) {
       ].filter(Boolean);
   
       // Получаем общее количество уведомлений
-      const total = await Notification.countDocuments({
-        $or: conditions
-      });
-  
+      if(user.createdAt){
+        total = await Notification.countDocuments({
+          $or: conditions,
+          createdAt: { $gte: user.createdAt }
+        });
+      }else{
+        total = await Notification.countDocuments({
+          $or: conditions
+        });
+      }
       // Получаем уведомления с пагинацией
-      const notifications = await Notification.find({
-        $or: conditions
-      })
-      .select('title body createdAt type')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+      if(user.createdAt){
+        notifications = await Notification.find({
+          $or: conditions,
+          createdAt: { $gte: user.createdAt }
+        })
+        .select('title body createdAt type')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
+      }else{
+        notifications = await Notification.find({
+          $or: conditions
+        })
+        .select('title body createdAt type')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
+      }
   
       return {
         notifications,

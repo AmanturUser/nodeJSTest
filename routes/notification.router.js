@@ -70,23 +70,10 @@ class NotificationService {
 
   async getUserNotifications(userId, page = 1, limit = 20) {
     const user = await User.findById(userId);
-    if(user.createdAt){
-      return Notification.find({
-        $or: [
-          { type: 'ALL', createdAt: { $gte: user.createdAt } },
-          { type: 'SCHOOL', schoolId: user.schoolId, createdAt: { $gte: user.createdAt } },
-          { type: 'CLASS', schoolId: user.schoolId, classId: user.classId, createdAt: { $gte: user.createdAt } },
-          { type: 'SPECIFIC_USERS', recipients: userId, createdAt: { $gte: user.createdAt } }
-        ]
-      })
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
-    }
+    
     return Notification.find({
       $or: [
-        { type: 'ALL'},
+        { type: 'ALL' },
         { type: 'SCHOOL', schoolId: user.schoolId },
         { type: 'CLASS', schoolId: user.schoolId, classId: user.classId },
         { type: 'SPECIFIC_USERS', recipients: userId }
@@ -95,6 +82,7 @@ class NotificationService {
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit)
+    .populate('createdBy', 'name')
     .lean();
   }
 }
