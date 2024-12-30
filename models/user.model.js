@@ -38,6 +38,7 @@ const userSchema = new Schema({
     default: 0
   },
   fcmToken: String,
+  createdAt: { type: Date, default: Date.now }
 });
 
 userSchema.pre('save', async function(next) {
