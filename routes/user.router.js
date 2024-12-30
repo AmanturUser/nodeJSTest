@@ -80,7 +80,8 @@ router.get('/userAction', authMiddleware.auth, async (req, res) => {
     var surveys= await Survey.find({classes: user.classId, _id: { $nin:  surveysIds}})
 
 
-    const events = await EventModel.find({ schoolId: user.schoolId })
+    const currentDate = new Date();
+    const events = await EventModel.find({ schoolId: user.schoolId, date: { $gte: currentDate }})
         .select('title description date')
         .sort({ createdAt: -1 });
 

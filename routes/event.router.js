@@ -37,13 +37,11 @@ router.post('/createEvent', authMiddleware.isAdmin, async (req, res) => {
 // Получение списка событий
 router.get('/eventList', authMiddleware.auth, async (req, res) => {
   try {
-    const schoolId  = req.user.schoolId;
     // const query = {
     //   date: { $gte: new Date(start), $lte: new Date(end) }
     // };
     // if (classId) query.classIds = classId; // Изменено для поиска по массиву
 
-    const _id = new mongoose.Types.ObjectId(schoolId);
     const currentDate = new Date();
     const events = await Event.find({ schoolId: req.user.schoolId, date: { $gte: currentDate } })
         .select('title description date')
