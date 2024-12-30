@@ -24,13 +24,19 @@
         </div>
 
         <div class="info-group">
+            <label>Школа:</label>
+            <div class="content">
+                <%= schools[0].name %>
+            </div>
+        </div>
+
+        <div class="info-group">
             <label>Классы:</label>
             <div class="content">
                 <% if (classes && classes.length > 0) { %>
                     <% classes.forEach(function(classItem) { %>
                         <span class="class-tag">
                             <%= classItem.name %>
-                            (<%= schools.find(s => s._id.toString() === classItem.schoolId.toString())?.name %>)
                         </span>
                     <% }); %>
                 <% } else { %>

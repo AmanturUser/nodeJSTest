@@ -827,81 +827,6 @@
     color: white;
   }
   
-  .custom-select {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
-  }
-  
-  .select-options {
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  
-  .option-item {
-    padding: 8px 12px;
-    cursor: pointer;
-  }
-  
-  .option-item:hover {
-    background-color: #f8f9fa;
-  }
-  
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-  }
-  
-  .checkbox-label input[type="checkbox"] {
-    margin: 0;
-  }
-  
-  .custom-select {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
-  }
-  
-  .select-options {
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  
-  .option-item {
-    padding: 8px 12px;
-    cursor: pointer;
-  }
-  
-  .option-item:hover {
-    background-color: #f8f9fa;
-  }
-  
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-  }
-  
-  .checkbox-label input[type="checkbox"] {
-    margin: 0;
-  }
-  
-  .select-actions {
-    margin-bottom: 5px;
-  }
-  
-  .select-actions a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .select-actions a:hover {
-    text-decoration: underline;
-  }
-  
   
           .container {
               max-width: 800px;
@@ -1011,27 +936,30 @@
             margin-bottom: 15px;
         }
         
-        .option-item {
+        .option-item-edit {
             display: flex;
             gap: 10px;
             margin-bottom: 10px;
         }
         
         .option-item input {
-            flex-grow: 1;
+          flex: 1;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            margin-right: 10px;
         }
         
         .remove-option {
-            padding: 8px 12px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+          padding: 8px 12px;
+          background: #dc3545;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          min-width: 40px; /* Фиксированная минимальная ширина */
+          margin-left: 10px; /* Отступ слева от input */
+      }
         
         .add-option {
             padding: 8px 16px;
@@ -1143,6 +1071,47 @@
             z-index: 1;
         }
 
+        .custom-select {
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          background: white;
+          padding: 10px;
+      }
+      
+      .select-options {
+          max-height: 200px;
+          overflow-y: auto;
+      }
+      
+      .option-item {
+          display: grid;
+          grid-template-columns: auto 1fr;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          cursor: pointer;
+          min-height: 40px;
+          
+      }
+      
+      
+      .option-item:hover {
+          background-color: #f8f9fa;
+      }
+      
+      .select-actions {
+          margin-bottom: 10px;
+      }
+      
+      .select-actions a {
+          color: #007bff;
+          text-decoration: none;
+      }
+      
+      .select-actions a:hover {
+          text-decoration: underline;
+      }
+
 
 
         /* headerMenu */
@@ -1218,7 +1187,7 @@
   background: #c0392b;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1324px) {
   .menu-toggle {
       display: block;
   }
@@ -1333,4 +1302,57 @@
       margin-left: auto;
       margin-right: 20px;
   }
+}
+
+
+/* edit survey */
+
+.survey-edit-form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.class-select-container {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  padding: 10px;
+}
+
+.class-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.class-item {
+
+  display: grid;
+          grid-template-columns: auto 1fr;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          cursor: pointer;
+          min-height: 40px;
+}
+
+.class-item:hover {
+  background-color: #f8f9fa;
+}
+
+.class-item input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.class-actions {
+  margin-bottom: 10px;
+}
+
+.class-actions a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.class-actions a:hover {
+  text-decoration: underline;
 }

@@ -1,12 +1,13 @@
 <!-- views/admin/survey/edit.ejs -->
-<div class="survey-form">
+<div class="survey-edit-form">
     <h1>Редактирование опроса</h1>
     
     <form action="/admin/surveys/<%= survey._id %>/edit" method="POST">
         <div class="form-group">
-            <label>Название опроса:</label>
+            <label for="name">Название опроса:</label>
             <input 
                 type="text" 
+                id="name"
                 name="name" 
                 value="<%= survey.name %>"
                 required
@@ -14,8 +15,9 @@
         </div>
         
         <div class="form-group">
-            <label>Описание:</label>
+            <label for="description">Описание:</label>
             <textarea 
+                id="description"
                 name="description" 
                 rows="4" 
                 required
@@ -23,37 +25,36 @@
         </div>
 
         <div class="form-group">
-            <label>Школа:</label>
-            <select id="schoolFilter" name="schoolFilter">
-                <% if (schools.length!=1) { %>
-                    <option value="">Все школы</option>
-                <% } %>
+            <label for="schoolFilter">Школа:</label>
+            <select id="schoolFilter" name="schoolFilter" required>
                 <% schools.forEach(function(school) { %>
-                    <option value="<%= school._id %>">
+                    <option value="<%= school._id %>" 
+                            <%= survey.schoolId.toString() === school._id.toString() ? 'selected' : '' %>>
                         <%= school.name %>
                     </option>
                 <% }); %>
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="classSelectGroup">
             <label>Классы:</label>
-            <div class="select-actions">
+            <div class="class-actions">
                 <a href="#" id="selectAll">Выбрать всех</a> | 
                 <a href="#" id="clearAll">Очистить выбор</a>
             </div>
-            <div class="custom-select">
-                <div class="select-options">
+            <div class="class-select-container">
+                <div class="class-list">
                     <% classes.forEach(function(classItem) { %>
-                        <div class="option-item" data-school-id="<%= classItem.schoolId %>">
-                            <label class="checkbox-label">
-                                <input 
-    type="checkbox" 
-    name="classIds" 
-    value="<%= classItem._id %>"
-    <%= survey.classes && survey.classes.includes(classItem._id.toString()) ? 'checked' : '' %>
->
-                                <span><%= classItem.name %></span>
+                        <div class="class-item" data-school-id="<%= classItem.schoolId %>">
+                            <input 
+                                type="checkbox" 
+                                name="classIds[]" 
+                                value="<%= classItem._id %>"
+                                id="class_<%= classItem._id %>"
+                                <%= survey.classes.some(c => c.toString() === classItem._id.toString()) ? 'checked' : '' %>
+                            >
+                            <label for="class_<%= classItem._id %>">
+                                <%= classItem.name %>
                             </label>
                         </div>
                     <% }); %>
@@ -65,19 +66,20 @@
             <label>Варианты ответов:</label>
             <div id="optionsContainer" class="options-container">
                 <% survey.options.forEach(function(option, index) { %>
-                    <div class="option-item">
+                    <div class="option-item-edit">
                         <input 
                             type="text" 
                             name="options[<%= index %>][optionName]" 
                             value="<%= option.optionName %>"
                             placeholder="Введите вариант ответа" 
                             required
+                            style="flex-grow: 1; margin-right: 10px;"
                         >
                         <button type="button" class="remove-option" onclick="removeOption(this)">✕</button>
                     </div>
                 <% }); %>
             </div>
-            <button type="button" class="add-option">Добавить вариант</button>
+            <button type="button" class="btn btn-success add-option" onclick="addOption()">Добавить вариант</button>
         </div>
 
         <div class="form-actions">

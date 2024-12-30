@@ -1019,7 +1019,7 @@ exports.createSurvey = async (req, res) => {
 
 exports.postCreateSurvey = async (req, res) => {
     try {
-        const { name, description, options } = req.body;
+        const { name, description, options, schoolFilter } = req.body;
         let { classIds } = req.body;
         
         // Преобразуем classIds в массив, если это строка
@@ -1043,12 +1043,27 @@ exports.postCreateSurvey = async (req, res) => {
           ...option,
           optionId: index + 1
         }));
-        const survey = new Survey({
-          name,
-          description,
-          options: optionsWithIds,
-          classes: classIds
-        });
+        var survey;
+
+        if(schoolFilter){
+
+            survey = new Survey({
+                name,
+                description,
+                options: optionsWithIds,
+                classes: classIds,
+                schoolId: schoolFilter
+              });
+        }else{
+
+            survey = new Survey({
+                name,
+                description,
+                options: optionsWithIds,
+                classes: classIds
+              });
+        }
+        
     
         await survey.save();
     
@@ -1206,7 +1221,8 @@ exports.deleteSurvey = async (req, res) => {
 exports.eventsGet = async (req, res) => {
     try {
         if(req.session.userRole===1){
-            const events = await Event.find({schoolId: req.session.schoolId})
+            const currentDate = new Date();
+            const events = await Event.find({schoolId: req.session.schoolId, date: { $gte: currentDate }})
             .sort({ date: 1 });
             var schools = await School.findById(req.session.schoolId);
             schools=[schools]
@@ -1223,7 +1239,8 @@ exports.eventsGet = async (req, res) => {
                 schoolId: req.session.schoolId
             });
         }else{
-            const events = await Event.find()
+            const currentDate = new Date();
+            const events = await Event.find({date: { $gte: currentDate }})
             .sort({ date: 1 });
             const schools = await School.find();
 
@@ -1236,8 +1253,10 @@ exports.eventsGet = async (req, res) => {
         }
         
     } catch (error) {
-        req.flash('error', 'Ошибка при загрузке событий');
-        res.redirect('/admin/dashboard');
+        console.error('Error:', error);
+        res.status(500).json({ success: false, message: 'Ошибка' });
+        // req.flash('error', 'Ошибка при загрузке событий');
+        // res.redirect('/admin/dashboard');
     }
 }
 

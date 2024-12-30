@@ -45,7 +45,7 @@ router.get('/eventList', authMiddleware.auth, async (req, res) => {
 
     const _id = new mongoose.Types.ObjectId(schoolId);
 
-    const events = await Event.find({ schoolId: req.user.schoolId })
+    const events = await Event.find({ schoolId: req.user.schoolId, date: { $gte: currentDate } })
         .select('title description date')
         .sort({ createdAt: -1 });
     res.json(events);

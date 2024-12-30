@@ -34,10 +34,8 @@
 
             <div class="form-group">
                 <label>Школа:</label>
-                <select id="schoolFilter" name="schoolFilter">
-                    <% if (schools.length!=1) { %>
-                        <option value="">Все школы</option>
-                    <% } %>
+                <select id="schoolFilter" name="schoolFilter" required>
+                    <option value="">Выберите школу</option>
                     <% if (locals.schools) { %>
                         <% schools.forEach(function(school) { %>
                             <option value="<%= school._id %>">
@@ -48,7 +46,7 @@
                 </select>
             </div>
             
-            <div class="form-group">
+            <div class="form-group" id="classSelectGroup" style="display: none;">
                 <label>Классы:</label>
                 <div class="select-actions">
                     <a href="#" id="selectAll">Выбрать всех</a> | 
@@ -59,13 +57,14 @@
                         <% if (locals.classes) { %>
                             <% classes.forEach(function(classItem) { %>
                                 <div class="option-item" data-school-id="<%= classItem.schoolId %>">
-                                    <label class="checkbox-label">
-                                        <input 
-                                            type="checkbox" 
-                                            name="classIds[]" 
-                                            value="<%= classItem._id %>"
-                                        >
-                                        <span><%= classItem.name %></span>
+                                    <input 
+                                        type="checkbox" 
+                                        name="classIds[]" 
+                                        value="<%= classItem._id %>"
+                                        id="class_<%= classItem._id %>"
+                                    >
+                                    <label for="class_<%= classItem._id %>">
+                                        <%= classItem.name %>
                                     </label>
                                 </div>
                             <% }); %>
@@ -79,13 +78,7 @@
                 <div id="optionsContainer" class="options-container">
                     <!-- По умолчанию один пустой вариант -->
                     <div class="option-item">
-                        <input 
-                            type="text" 
-                            name="options[0][optionName]" 
-                            placeholder="Введите вариант ответа" 
-                            required
-                        >
-                        <button type="button" class="remove-option" onclick="removeOption(this)">✕</button>
+                        
                     </div>
                 </div>
                 <button type="button" class="btn btn-success add-option" onclick="addOption()">Добавить вариант</button>
