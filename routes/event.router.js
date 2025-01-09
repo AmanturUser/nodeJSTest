@@ -43,7 +43,8 @@ router.get('/eventList', authMiddleware.auth, async (req, res) => {
     // if (classId) query.classIds = classId; // Изменено для поиска по массиву
 
     const currentDate = new Date();
-    const events = await Event.find({ schoolId: req.user.schoolId, date: { $gte: currentDate } })
+    const utcPlus6Date = new Date(currentDate.getTime() + (6 * 60 * 60 * 1000));
+    const events = await Event.find({ schoolId: req.user.schoolId, date: { $gte: utcPlus6Date } })
         .select('title description date')
         .sort({ createdAt: -1 });
     res.json(events);

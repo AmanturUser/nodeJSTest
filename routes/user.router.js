@@ -81,7 +81,8 @@ router.get('/userAction', authMiddleware.auth, async (req, res) => {
 
 
     const currentDate = new Date();
-    const events = await EventModel.find({ schoolId: user.schoolId, date: { $gte: currentDate }})
+    const utcPlus6Date = new Date(currentDate.getTime() + (6 * 60 * 60 * 1000));
+    const events = await EventModel.find({ schoolId: user.schoolId, date: { $gte: utcPlus6Date }})
         .select('title description date')
         .sort({ createdAt: -1 });
 
