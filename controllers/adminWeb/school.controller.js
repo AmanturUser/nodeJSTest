@@ -1222,7 +1222,8 @@ exports.eventsGet = async (req, res) => {
     try {
         if(req.session.userRole===1){
             const currentDate = new Date();
-            const events = await Event.find({schoolId: req.session.schoolId, date: { $gte: (currentDate + (6 * 60 * 60 * 1000)) }})
+            const utcPlus6Date = new Date(currentDate.getTime() + (6 * 60 * 60 * 1000));
+            const events = await Event.find({schoolId: req.session.schoolId, date: { $gte: utcPlus6Date }})
             .sort({ date: 1 });
             var schools = await School.findById(req.session.schoolId);
             schools=[schools]
@@ -1240,7 +1241,8 @@ exports.eventsGet = async (req, res) => {
             });
         }else{
             const currentDate = new Date();
-            const events = await Event.find({date: { $gte: (currentDate - (6 * 60 * 60 * 1000))}})
+            const utcPlus6Date = new Date(currentDate.getTime() + (6 * 60 * 60 * 1000));
+            const events = await Event.find({date: { $gte: (utcPlus6Date)}})
             .sort({ date: 1 });
             const schools = await School.find();
 
