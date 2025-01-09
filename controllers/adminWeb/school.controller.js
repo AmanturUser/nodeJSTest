@@ -1240,7 +1240,7 @@ exports.eventsGet = async (req, res) => {
             });
         }else{
             const currentDate = new Date();
-            const events = await Event.find({date: { $gte: (currentDate + (6 * 60 * 60 * 1000))}})
+            const events = await Event.find({date: { $gte: (currentDate - (6 * 60 * 60 * 1000))}})
             .sort({ date: 1 });
             const schools = await School.find();
 
