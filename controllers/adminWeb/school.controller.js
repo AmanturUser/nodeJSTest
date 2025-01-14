@@ -597,6 +597,20 @@ exports.postEditClass = async (req, res) => {
 
         await myClass.save();
 
+
+        User.updateMany(
+            { classId: myClass._id }, // условие для поиска
+            { $set: { schoolId: schoolId } } // обновление
+          )
+            .then((result) => {
+              console.log(`${result.modifiedCount} users updated successfully.`);
+            })
+            .catch((err) => {
+              console.error("Error updating users:", err);
+            });
+
+
+
         if(req.session.userRole===1){
             res.redirect(`/admin/classes`);
         }else{
