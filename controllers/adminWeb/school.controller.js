@@ -1167,7 +1167,7 @@ exports.showInfoSurvey = async (req, res) => {
 exports.updateSurvey = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, options, classIds } = req.body;
+        const { name, description, options, classIds, schoolFilter } = req.body;
 
         // Проверяем существование опроса
         const survey = await Survey.findById(id);
@@ -1185,6 +1185,7 @@ exports.updateSurvey = async (req, res) => {
         survey.description = description;
         survey.options = optionsWithIds;
         survey.classes = Array.isArray(classIds) ? classIds : [classIds];
+        survey.schoolId = schoolFilter;
 
         await survey.save();
 
