@@ -57,7 +57,7 @@ router.get('/userDashboard', authMiddleware.auth, async (req, res) => {
       .select('name description') // Выбираем только нужные поля
       .lean();
 
-      const ideas = await IdeaModel.find({userId : user._id}).select('name description');
+      const ideas = await IdeaModel.find({userId : user._id, status: { $ne: 'REJECTED' }}).select('name description');
 
     res.json({userName : user.name,ideas,projects,userSurveys});
   } catch (error) {
