@@ -934,59 +934,84 @@ const SchoolIdeaManager = {
     // Привязка обработчиков событий
     bindEvents: function() {
         document.addEventListener('click', (e) => {
-            const confirmBtn = e.target.closest('.school-idea-btn-confirm');
+            const approveBtn = e.target.closest('.school-idea-btn-approve');
             const rejectBtn = e.target.closest('.school-idea-btn-reject');
 
-            if (confirmBtn) {
-                const ideaId = confirmBtn.dataset.ideaId;
-                this.updateStatus(ideaId, true);
+            if (approveBtn) {
+                const ideaId = approveBtn.dataset.ideaId;
+                this.updateStatus(ideaId, 'APPROVED');
             } else if (rejectBtn) {
                 const ideaId = rejectBtn.dataset.ideaId;
-                this.updateStatus(ideaId, false);
+                this.updateStatus(ideaId, 'REJECTED');
             }
         });
     },
 
     // Обновление статуса идеи
-    // Обновленная функция updateStatus в global.js
-updateStatus: function(ideaId, status) {
-    const card = document.querySelector(`.school-idea-card[data-id="${ideaId}"]`);
-    const actions = card.querySelector('.school-idea-actions');
-    const originalContent = actions.innerHTML;
-    
-    actions.innerHTML = '<div class="school-idea-loading">Обновление...</div>';
+    updateStatus: function(ideaId, status) {
+        const card = document.querySelector(`.school-idea-card[data-id="${ideaId}"]`);
+        const actions = card.querySelector('.school-idea-actions');
+        const originalContent = actions.innerHTML;
+        
+        // Показываем индикатор загрузки
+        actions.innerHTML = `
+            <div class="school-idea-loading">
+                <span class="school-idea-loading-text">Обновление...</span>
+            </div>`;
 
-    fetch(`/admin/ideas/${ideaId}/status`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({ status })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const statusText = status === 'APPROVED' ? 'Подтверждено' : 'Отклонено';
-            const statusClass = status === 'APPROVED' ? 
-                'school-idea-status-approved' : 
-                'school-idea-status-rejected';
-            
-            actions.innerHTML = `
-                <span class="school-idea-status ${statusClass}">
-                    ${statusText}
-                </span>`;
-            
-            showNotification('Статус идеи успешно обновлен', 'success');
-        } else {
-            throw new Error(data.message || 'Ошибка обновления');
-        }
-    })
-    .catch(error => {
-        actions.innerHTML = originalContent;
-        showNotification('Произошла ошибка при обновлении статуса', 'error');
-    });
-},
+        fetch(`/admin/ideas/${ideaId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const statusText = this.getStatusText(status);
+                const statusClass = this.getStatusClass(status);
+                
+                actions.innerHTML = `
+                    <span class="school-idea-status ${statusClass}">
+                        ${statusText}
+                    </span>`;
+                
+                this.showNotification('Статус идеи успешно обновлен', 'success');
+            } else {
+                throw new Error(data.message || 'Ошибка обновления');
+            }
+        })
+        .catch(error => {
+            actions.innerHTML = originalContent;
+            this.showNotification(
+                'Произошла ошибка при обновлении статуса', 
+                'error'
+            );
+            console.error('Error updating status:', error);
+        });
+    },
+
+    // Получение текста статуса
+    getStatusText: function(status) {
+        const statusTexts = {
+            'APPROVED': 'Подтверждено',
+            'REJECTED': 'Отклонено',
+            'PENDING': 'На рассмотрении'
+        };
+        return statusTexts[status] || status;
+    },
+
+    // Получение класса для статуса
+    getStatusClass: function(status) {
+        const statusClasses = {
+            'APPROVED': 'school-idea-status-approved',
+            'REJECTED': 'school-idea-status-rejected',
+            'PENDING': 'school-idea-status-pending'
+        };
+        return statusClasses[status] || '';
+    },
 
     // Показ уведомления
     showNotification: function(message, type = 'success') {

@@ -1799,61 +1799,93 @@
   margin-top: 20px;
 }
 
+/* Стили для статусов идей */
+.school-idea-status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.school-idea-status-approved {
+  color: #28a745;
+  background-color: #ecfce5;
+}
+
+.school-idea-status-rejected {
+  color: #dc3545;
+  background-color: #fff2f0;
+}
+
+.school-idea-status-pending {
+  color: #ffc107;
+  background-color: #ffffff;
+}
+
+/* Карточка идеи */
 .school-idea-card {
-  border: 1px solid #ddd;
+  background: #fff;
   border-radius: 8px;
   padding: 20px;
-  background: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e8e8e8;
 }
 
-.school-idea-content h3 {
-  margin: 0 0 10px;
-  color: #333;
+/* Заголовок идеи */
+.school-idea-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 500;
 }
 
-.school-idea-content p {
+/* Описание идеи */
+.school-idea-card p {
+  margin: 0 0 16px;
   color: #666;
-  margin: 0 0 10px;
 }
 
-.school-idea-content .author {
-  color: #888;
-  font-size: 0.9em;
+/* Мета-информация */
+.school-idea-meta {
+  color: #666;
+  font-size: 14px;
+  margin-top: 12px;
 }
 
-.school-idea-actions {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-}
-
+/* Кнопки действий */
 .school-idea-btn {
-  padding: 8px 16px;
+  padding: 6px 16px;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.2s;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.school-idea-btn-success {
-  background: #4CAF50;
+.school-idea-btn-approve {
+  background: #28a745;
   color: white;
 }
 
-.school-idea-btn-success:hover {
-  background: #45a049;
-}
-
-.school-idea-btn-danger {
-  background: #f44336;
+.school-idea-btn-reject {
+  background: #dc3545;
   color: white;
 }
 
-.school-idea-btn-danger:hover {
-  background: #da190b;
+/* Время и автор */
+.school-idea-time {
+  color: #666;
+  font-size: 14px;
+  margin-top: 8px;
 }
+
+.school-idea-author {
+  color: #666;
+  font-style: normal;
+  font-size: 14px;
+}
+
 
 .school-idea-status {
   padding: 6px 12px;
@@ -1896,46 +1928,4 @@
   padding: 40px;
   border: 2px dashed #ddd;
   border-radius: 8px;
-}
-
-.school-idea-author {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  color: #64748b;
-  font-size: 0.875rem;
-}
-
-.school-idea-author::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  background-color: #94a3b8;
-  border-radius: 50%;
-}
-
-.school-idea-meta {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 12px;
-  font-size: 0.875rem;
-}
-
-.school-idea-author, .school-idea-date {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #64748b;
-}
-
-.school-idea-author::before, .school-idea-date::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  background-color: #94a3b8;
-  border-radius: 50%;
 }

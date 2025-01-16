@@ -56,11 +56,14 @@ exports.listIdeas = async (req, res) => {
 exports.updateStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { confirm } = req.body;
-        const schoolId = req.user.schoolId;
+        const { status } = req.body;
+        const schoolId = req.session.schoolId;
 
-        // Проверяем, что идея принадлежит школе администратора
-        const idea = await Idea.findOne({ _id: id, schoolId });
+        if (!Object.values(ideaStatusEnum).includes(status)) {
+            throw new Error('Invalid status');
+        }
+
+        const idea = await IdeaModel.findOne({ _id: id, schoolId });
         
         if (!idea) {
             return res.status(404).json({ 
@@ -69,10 +72,9 @@ exports.updateStatus = async (req, res) => {
             });
         }
 
-        idea.confirm = confirm;
+        idea.status = status;
         await idea.save();
 
-        // Если запрос был AJAX
         if (req.xhr) {
             return res.json({ 
                 success: true, 
@@ -80,9 +82,8 @@ exports.updateStatus = async (req, res) => {
             });
         }
 
-        // Если обычный POST запрос
         req.flash('success', 'Статус идеи обновлен');
-        res.redirect('/admin/idea/list');
+        res.redirect('/admin/ideas');
 
     } catch (error) {
         console.error('Error updating idea status:', error);
