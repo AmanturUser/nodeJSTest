@@ -8,7 +8,7 @@ const EventModel = require('../models/event.model');
 const router=require('express').Router();
 const jwt = require('jsonwebtoken');
 const authMiddleware = require('../middlewares/authMiddleware');
-const IdeaModel = require("../models/idea.model");
+const {IdeaModel} = require("../models/idea.model");
 const SurveyResponse = require('../models/surveyResponse.model');
 
 
