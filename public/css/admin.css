@@ -310,6 +310,7 @@
 }
 
 .logout-button {
+  display: flex;
     margin-left: 20px;
 }
 
@@ -1617,10 +1618,9 @@
   }
 
   .logout-button {
-    position: fixed;
+    position: absolute;
     right: 20;
       margin-left: auto;
-      margin-right: 20px;
   }
 }
 
