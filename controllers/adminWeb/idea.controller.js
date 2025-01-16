@@ -1,5 +1,5 @@
 // controllers/ideaController.js
-const Idea = require('../../models/idea.model');
+const {IdeaModel, ideaStatusEnum} = require('../../models/idea.model');
 const UserModel = require('../../models/user.model');
 const UserClass = require('../../models/class.model');
 const path = require('path');
@@ -10,7 +10,7 @@ exports.listIdeas = async (req, res) => {
 
         
         // Получаем все идеи для данной школы
-        const ideas = await Idea.find({ schoolId: req.session.schoolId })
+        const ideas = await IdeaModel.find({ schoolId: req.session.schoolId })
             .sort({ createdAt: -1 });    // Сортируем по дате создания
 
             const ideasWithUsers = (await Promise.all(
@@ -39,6 +39,7 @@ exports.listIdeas = async (req, res) => {
         res.render('admin/idea/list', { 
             ideas : ideasWithUsers,
             title: 'Список идей',
+            ideaStatusEnum,
             layout: path.join(__dirname, "../../views/layouts/schoolAdmin"),
             footer: true,
             headerTitle: 'Инициативы',

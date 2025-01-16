@@ -948,52 +948,45 @@ const SchoolIdeaManager = {
     },
 
     // Обновление статуса идеи
-    updateStatus: function(ideaId, confirm) {
-        // Показываем индикатор загрузки
-        const card = document.querySelector(`.school-idea-card[data-id="${ideaId}"]`);
-        const actions = card.querySelector('.school-idea-actions');
-        const originalContent = actions.innerHTML;
-        
-        actions.innerHTML = '<div class="school-idea-loading">Обновление...</div>';
+    // Обновленная функция updateStatus в global.js
+updateStatus: function(ideaId, status) {
+    const card = document.querySelector(`.school-idea-card[data-id="${ideaId}"]`);
+    const actions = card.querySelector('.school-idea-actions');
+    const originalContent = actions.innerHTML;
+    
+    actions.innerHTML = '<div class="school-idea-loading">Обновление...</div>';
 
-        // Отправляем запрос
-        fetch(`/admin/ideas/${ideaId}/status`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ confirm })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Обновляем UI
-                actions.innerHTML = `
-                    <span class="school-idea-status ${
-                        confirm ? 'school-idea-status-confirmed' : 'school-idea-status-rejected'
-                    }">
-                        ${confirm ? 'Подтверждено' : 'Отклонено'}
-                    </span>`;
-                
-                // Показываем уведомление
-                this.showNotification(
-                    'Статус идеи успешно обновлен', 
-                    'success'
-                );
-            } else {
-                throw new Error(data.message || 'Ошибка обновления');
-            }
-        })
-        .catch(error => {
-            // Возвращаем оригинальное состояние в случае ошибки
-            actions.innerHTML = originalContent;
-            this.showNotification(
-                'Произошла ошибка при обновлении статуса', 
-                'error'
-            );
-        });
-    },
+    fetch(`/admin/ideas/${ideaId}/status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const statusText = status === 'APPROVED' ? 'Подтверждено' : 'Отклонено';
+            const statusClass = status === 'APPROVED' ? 
+                'school-idea-status-approved' : 
+                'school-idea-status-rejected';
+            
+            actions.innerHTML = `
+                <span class="school-idea-status ${statusClass}">
+                    ${statusText}
+                </span>`;
+            
+            showNotification('Статус идеи успешно обновлен', 'success');
+        } else {
+            throw new Error(data.message || 'Ошибка обновления');
+        }
+    })
+    .catch(error => {
+        actions.innerHTML = originalContent;
+        showNotification('Произошла ошибка при обновлении статуса', 'error');
+    });
+},
 
     // Показ уведомления
     showNotification: function(message, type = 'success') {
