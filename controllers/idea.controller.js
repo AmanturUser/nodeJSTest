@@ -1,6 +1,6 @@
 const mongoose=require('mongoose');
 const User = require("../models/user.model");
-const IdeaModel = require("../models/idea.model");
+const {IdeaModel} = require("../models/idea.model");
 const updateUserRating = require('../utils/updateUserRating');
 
 
