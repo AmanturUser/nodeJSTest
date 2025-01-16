@@ -1,0 +1,46 @@
+<!-- views/ideas/list.ejs -->
+<div class="school-ideas-container">
+    <h1>Список идей</h1>
+    
+    <div class="school-ideas-list">
+        <% if (ideas.length === 0) { %>
+            <p class="school-idea-empty">Нет идей для рассмотрения</p>
+        <% } else { %>
+            <% ideas.forEach(function(idea) { %>
+                <div class="school-idea-card" data-id="<%= idea._id %>">
+                    <div class="school-idea-content">
+                        <h3><%= idea.name %></h3>
+                        <p><%= idea.description %></p>
+                        <div class="school-idea-meta">
+                            <div class="school-idea-author">
+                                <%= idea.userFullName %>
+                            </div>
+                            <div class="school-idea-date">
+                                <%= idea.formattedDate %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="school-idea-actions">
+                        <% if (idea.confirm === null) { %>
+                            <button 
+                                class="school-idea-btn school-idea-btn-success school-idea-btn-confirm"
+                                data-idea-id="<%= idea._id %>">
+                                Подтвердить
+                            </button>
+                            <button 
+                                class="school-idea-btn school-idea-btn-danger school-idea-btn-reject"
+                                data-idea-id="<%= idea._id %>">
+                                Отклонить
+                            </button>
+                        <% } else { %>
+                            <span class="school-idea-status <%= idea.confirm ? 'school-idea-status-confirmed' : 'school-idea-status-rejected' %>">
+                                <%= idea.confirm ? 'Подтверждено' : 'Отклонено' %>
+                            </span>
+                        <% } %>
+                    </div>
+                </div>
+            <% }); %>
+        <% } %>
+    </div>
+</div>

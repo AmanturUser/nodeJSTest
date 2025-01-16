@@ -5,6 +5,7 @@ const adminAuth = require('../controllers/adminAuthController');
 const schoolController = require('../controllers/adminWeb/school.controller');
 const projectController = require('../controllers/adminWeb/project.controller');
 const notificationController = require('../controllers/adminWeb/notification.controller');
+const ideaController = require('../controllers/adminWeb/idea.controller');
 const Class = require('../models/class.model');
 const User = require('../models/user.model');
 
@@ -124,5 +125,10 @@ router.get('/api/classes/:classId/students', async (req, res) => {
         res.status(500).json({ error: 'Ошибка при загрузке учеников' });
     }
 });
+
+
+//ideas
+router.get('/admin/ideas', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, ideaController.listIdeas);
+router.post('/admin/ideas/:id/status', adminAuth.isAuthenticated,adminAuth.isSuperAdminAndSchoolAdmin, ideaController.updateStatus);
 
 module.exports = router;
